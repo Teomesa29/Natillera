@@ -32,6 +32,9 @@ app.include_router(finanzas_router)
 app.include_router(dashboard_router)
 app.include_router(prestamos_router)
 app.include_router(polla_router)
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "API Natillera"}
 
 # -------------------------
 # Scheduler (APScheduler)
