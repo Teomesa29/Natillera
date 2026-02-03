@@ -13,6 +13,8 @@ from app.routers.Finanzas import router as finanzas_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.prestamos import router as prestamos_router
 from app.routers.polla import router as polla_router
+from fastapi import Response
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -67,9 +69,9 @@ def start_scheduler():
 def shutdown_scheduler():
     scheduler.shutdown()
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
-    return {"status": "ok"}
+    return Response(status_code=200)
 
 
 
