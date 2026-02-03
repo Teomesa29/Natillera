@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 # Render inyecta DATABASE_URL automáticamente
 DATABASE_URL = os.getenv("DATABASE_URL")
-
+print("DB_URL_USADA:", DATABASE_URL)
 # Si NO existe → estamos en local → SQLite
 if not DATABASE_URL:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,3 +38,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
