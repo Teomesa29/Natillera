@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:8000";
+const API = window.API_BASE || "http://127.0.0.1:8000";
 
 function formatearMoneda(valor) {
     return `$${Number(valor || 0).toLocaleString("es-CO")} COP`;

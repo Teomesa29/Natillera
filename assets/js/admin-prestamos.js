@@ -1,4 +1,4 @@
-const API = localStorage.getItem("API_BASE") || "http://127.0.0.1:8000";
+const API = window.API_BASE || "http://127.0.0.1:8000";
 
 function authHeaders() {
     const token = localStorage.getItem("access_token");
