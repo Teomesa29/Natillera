@@ -16,6 +16,14 @@ from app.routers.polla import router as polla_router
 
 Base.metadata.create_all(bind=engine)
 
+@app.get("/debug/db")
+def debug_db():
+    return {
+        "database_url_env": os.getenv("DATABASE_URL"),
+        "engine_url": str(engine.url),
+    }
+
+
 app = FastAPI(title="API Natillera")
 
 app.add_middleware(
@@ -65,3 +73,4 @@ def start_scheduler():
 @app.on_event("shutdown")
 def shutdown_scheduler():
     scheduler.shutdown()
+
