@@ -9,3 +9,4 @@ apscheduler
 python-multipart==0.0.9
 requests
 python-dateutil
+argon2-cffi
