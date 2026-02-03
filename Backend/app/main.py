@@ -3,11 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-
-from app.database import Base, engine
+from app.models import models  
 from app.database import SessionLocal
 from app.services.polla_scheduler import sync_medellin_if_last_friday
-
+from app.database import engine, Base
 from app.routers.crear_usuario import router as crear_usuario_router
 from app.routers.auth import router as auth_router
 from app.routers.Finanzas import router as finanzas_router
