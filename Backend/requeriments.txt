@@ -5,4 +5,5 @@ pydantic==2.8.2
 pydantic-settings==2.4.0
 python-jose==3.3.0
 passlib[bcrypt]==1.7.4
+apscheduler
 python-multipart==0.0.9
