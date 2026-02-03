@@ -119,13 +119,16 @@ function pintarTarjetas(data) {
 
 async function cargarEstadoPolla(usuarioId) {
     const token = localStorage.getItem("access_token");
-    const res = await fetch(`${apiBase()}/api/dashboard/${usuario.id}`, {
+
+    const res = await fetch(`${apiBase()}/api/polla/estado/${usuarioId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
+
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Error consultando estado de polla");
     return data;
 }
+
 
 function pintarPolla(estado) {
     const p = document.querySelector("#Pollas .valor p");
