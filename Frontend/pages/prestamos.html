@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información de Préstamos - Natillera Familiar</title>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/prestamos.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-dashboard">
+            <h1>💰 Información sobre tus Préstamos</h1>
+            <div class="header-buttons">
+                <button onclick="window.location.href='dashboard.html'" class="btn-volver">← Volver</button>
+                <button id="btnCerrarSesion" class="btn-cerrar-sesion">Cerrar Sesión</button>
+            </div>
+        </div>
+
+
+        <!-- Resumen del préstamo actual -->
+        <section class="tarjeta prestamo-principal">
+            <div class="prestamo-header">
+                <h2>Préstamo Actual</h2>
+                <span class="estado-badge" id="estadoPrestamo">Pendiente</span>
+            </div>
+
+            <div class="prestamo-monto">
+                <p class="label">Monto prestado:</p>
+                <p class="valor-grande" id="montoPrestado">$0 COP</p>
+            </div>
+
+            <div class="prestamo-detalles">
+                <div class="detalle-item">
+                    <span class="detalle-label">Fecha de préstamo:</span>
+                    <span class="detalle-valor" id="fechaPrestamo">-</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Fecha de vencimiento:</span>
+                    <span class="detalle-valor" id="fechaVencimiento">-</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Tasa de interés:</span>
+                    <span class="detalle-valor destacado">3% mensual</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Intereses acumulados:</span>
+                    <span class="detalle-valor" id="interesesAcumulados">$0 COP</span>
+                </div>
+                <div class="detalle-item">
+                    <span class="detalle-label">Total a pagar:</span>
+                    <span class="detalle-valor destacado" id="totalPagar">$0 COP</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="tarjeta">
+            <h2>📅 Plan de pagos</h2>
+            <div id="planPagosSocio"></div>
+        </section>
+
+
+        <!-- Información sobre multas por mora -->
+        <section class="tarjeta info-mora">
+            <h2>⚠️ Información sobre Mora</h2>
+            <div class="mora-contenido">
+                <p><strong>Multa por mora:</strong> $5,000 COP por cada día de retraso</p>
+                <p><strong>Plazo de pago:</strong> Los préstamos deben pagarse antes del día 7 de cada mes</p>
+                <p class="nota">💡 <em>Recuerda: Los intereses se calculan mensualmente sobre el monto prestado</em></p>
+            </div>
+        </section>
+
+        <!-- Historial de préstamos -->
+        <section class="historial-seccion">
+            <h2>📋 Historial de Préstamos</h2>
+
+            <div class="historial-header">
+                <span class="header-detalle">FECHA</span>
+                <span class="header-monto">MONTO</span>
+                <span class="header-estado">ESTADO</span>
+            </div>
+
+            <div class="historial-lista" id="historialPrestamos">
+                <!-- Los préstamos se cargarán aquí con JavaScript -->
+            </div>
+        </section>
+
+        <!-- Reglas de préstamos -->
+        <section class="reglas-recordatorio">
+            <h3>REGLAS DE PRÉSTAMOS</h3>
+            <ul>
+                <li>El monto máximo a prestar es el <strong>70% de tus ahorros</strong></li>
+                <li>Los préstamos tienen un <strong>interés del 3% mensual</strong></li>
+                <li>El plazo máximo de pago es de <strong>6 meses</strong></li>
+                <li>Los pagos deben realizarse antes del <strong>día 7 de cada mes</strong></li>
+                <li>Multa por mora: <strong>$5,000 por día de retraso</strong></li>
+                <li>No se puede solicitar un nuevo préstamo si tienes uno activo</li>
+            </ul>
+        </section>
+
+        <section class="tarjeta">
+            <h2>📌 Mis préstamos</h2>
+            <div id="prestamosLista"></div>
+        </section>
+
+
+        <footer>
+            <p>Hecho por Mateo Restrepo</p>
+        </footer>
+    </div>
+
+    <script src="../assets/js/datos.js"></script>
+    <script src="../assets/js/prestamos.js"></script>
+    <script src="../assets/js/sesion.js"></script>
+
+</body>
+
+</html>

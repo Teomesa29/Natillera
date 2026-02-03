@@ -1,0 +1,758 @@
+/* Importamos una fuente moderna y legible */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --bg-color: #f0f2f5;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: #ffffff;
+    --text-main: #2d3436;
+    --text-muted: #636e72;
+
+    /* Colores vividos para cada sección */
+    --color-ahorro: #0984e3;
+    --color-mis-ahorros: #00b894;
+    --color-interes: #fdcb6e;
+    --color-entrega: #6c5ce7;
+    --color-socios: #00cec9;
+    --color-prestamos: #d63031;
+    --color-pollas: #e17055;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+/* Contenedor principal */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 50px;
+    font-size: 2.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Layout de Rejilla: 3 columnas en pantallas grandes */
+.tarjetas-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+/* Estilo Base de las Tarjetas */
+.tarjeta {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-top: 8px solid #dfe6e9;
+    position: relative;
+    overflow: hidden;
+    min-height: 200px;
+}
+
+.tarjeta:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Colores personalizados por ID */
+#ahorro {
+    border-top-color: var(--color-ahorro);
+}
+
+#ahorro .valor {
+    color: var(--color-ahorro);
+}
+
+#mis_ahorros {
+    border-top-color: var(--color-mis-ahorros);
+}
+
+#mis_ahorros .valor {
+    color: var(--color-mis-ahorros);
+}
+
+#interes {
+    border-top-color: var(--color-interes);
+}
+
+#interes .valor {
+    color: var(--color-interes);
+}
+
+#entrega {
+    border-top-color: var(--color-entrega);
+    background-color: black;
+}
+
+#entrega h2 {
+    color: var(--color-entrega);
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+#socios {
+    border-top-color: var(--color-socios);
+}
+
+#socios .valor {
+    color: var(--color-socios);
+}
+
+#Prestamos {
+    border-top-color: var(--color-prestamos);
+}
+
+#Prestamos .valor {
+    color: var(--color-prestamos);
+}
+
+btn-info-prestamo {
+    background: rgba(214, 48, 49, 0.1);
+    color: var(--color-prestamos);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 15px;
+}
+
+/* Botón principal (reutilizable) */
+.btn-primary {
+    border: 0;
+    cursor: pointer;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #e74c3c 0%, #ff6b6b 100%);
+    box-shadow: 0 10px 25px rgba(231, 76, 60, 0.18);
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(231, 76, 60, 0.22);
+    filter: brightness(1.02);
+}
+
+.btn-primary:active {
+    transform: translateY(0px);
+    box-shadow: 0 8px 18px rgba(231, 76, 60, 0.16);
+}
+
+
+#Pollas {
+    border-top-color: var(--color-pollas);
+    background: linear-gradient(135deg, rgba(225, 112, 85, 0.1) 0%, rgba(225, 112, 85, 0.05) 100%);
+}
+
+#Pollas h2 {
+    color: var(--color-pollas);
+}
+
+#Pollas .valor {
+    color: var(--color-pollas);
+}
+
+.tarjeta header {
+    margin-bottom: 20px;
+}
+
+.tarjeta h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.valor {
+    background: rgba(0, 0, 0, 0.02);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.valor p {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Estilo especial para links */
+.valor a {
+    display: inline-block;
+    margin-top: 15px;
+    color: var(--color-prestamos);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(214, 48, 49, 0.1);
+}
+
+.valor a:hover {
+    background: rgba(214, 48, 49, 0.2);
+    transform: scale(1.05);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 60px;
+    padding: 30px 20px;
+    font-size: 1rem;
+    color: var(--text-muted);
+    border-top: 2px solid #e0e0e0;
+    width: 100%;
+}
+
+/* Animación de entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tarjeta {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Diferentes delays para efecto cascada */
+.tarjeta:nth-child(1) {
+    animation-delay: 0.1s;
+    opacity: 0;
+}
+
+.tarjeta:nth-child(2) {
+    animation-delay: 0.2s;
+    opacity: 0;
+}
+
+.tarjeta:nth-child(3) {
+    animation-delay: 0.3s;
+    opacity: 0;
+}
+
+.tarjeta:nth-child(4) {
+    animation-delay: 0.4s;
+    opacity: 0;
+}
+
+.tarjeta:nth-child(5) {
+    animation-delay: 0.5s;
+    opacity: 0;
+}
+
+.tarjeta:nth-child(6) {
+    animation-delay: 0.6s;
+    opacity: 0;
+}
+
+.tarjeta:nth-child(7) {
+    animation-delay: 0.7s;
+    opacity: 0;
+}
+
+/* Responsive: 2 columnas en tablets */
+@media (max-width: 1024px) {
+    .tarjetas-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+}
+
+/* Responsive: 1 columna en móviles */
+@media (max-width: 768px) {
+    body {
+        padding: 30px 15px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 35px;
+    }
+
+    .tarjetas-wrapper {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .tarjeta {
+        padding: 25px;
+        min-height: 180px;
+    }
+
+    .tarjeta h2 {
+        font-size: 1.1rem;
+    }
+
+    .valor p {
+        font-size: 1.5rem;
+    }
+}
+
+/* Para pantallas muy grandes */
+@media (min-width: 1400px) {
+    .tarjetas-wrapper {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ... (todo el CSS anterior se mantiene) ... */
+
+/* Sección de Historial */
+.historial-seccion {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 35px;
+    margin-top: 40px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.historial-seccion h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 30px;
+}
+
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 10px;
+}
+
+.header-detalle,
+.header-monto {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #95a5a6;
+    letter-spacing: 0.5px;
+}
+
+.historial-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.movimiento {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.movimiento:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.movimiento-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.movimiento-icono {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.movimiento-icono.ingreso {
+    background: rgba(0, 184, 148, 0.15);
+    color: var(--color-mis-ahorros);
+}
+
+.movimiento-icono.interes {
+    background: rgba(9, 132, 227, 0.15);
+    color: var(--color-ahorro);
+}
+
+.movimiento-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.movimiento-titulo {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.movimiento-fecha {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.movimiento-monto {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.movimiento-monto.positivo {
+    color: var(--color-mis-ahorros);
+}
+
+.movimiento-monto.negativo {
+    color: var(--color-prestamos);
+}
+
+/* Sección de Reglas (Recordatorio) */
+.reglas-recordatorio {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 35px;
+    margin-top: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.reglas-recordatorio h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #00b894;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.reglas-recordatorio ul {
+    list-style: none;
+    padding: 0;
+}
+
+.reglas-recordatorio ul li {
+    padding: 12px 0;
+    padding-left: 30px;
+    position: relative;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.reglas-recordatorio ul li::before {
+    content: "•";
+    position: absolute;
+    left: 10px;
+    color: #00b894;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.reglas-recordatorio ul li strong {
+    color: #00b894;
+    font-weight: 700;
+}
+
+/* Responsive para Historial */
+@media (max-width: 768px) {
+    .historial-seccion {
+        padding: 25px 20px;
+    }
+
+    .historial-header {
+        padding: 12px 15px;
+    }
+
+    .movimiento {
+        padding: 15px;
+        flex-direction: row;
+    }
+
+    .movimiento-info {
+        gap: 12px;
+    }
+
+    .movimiento-icono {
+        width: 40px;
+        height: 40px;
+    }
+
+    .movimiento-titulo {
+        font-size: 0.95rem;
+    }
+
+    .movimiento-fecha {
+        font-size: 0.8rem;
+    }
+
+    .movimiento-monto {
+        font-size: 1.2rem;
+    }
+
+    .reglas-recordatorio {
+        padding: 25px 20px;
+    }
+
+    .reglas-recordatorio h3 {
+        font-size: 1.1rem;
+    }
+
+    .reglas-recordatorio ul li {
+        font-size: 0.95rem;
+        padding-left: 25px;
+    }
+}
+
+/* Header del Dashboard con botón de cerrar sesión */
+.header-dashboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 50px;
+    gap: 20px;
+}
+
+.header-dashboard h1 {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.btn-cerrar-sesion {
+    background: linear-gradient(135deg, #d63031 0%, #e17055 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-cerrar-sesion:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(214, 48, 49, 0.3);
+}
+
+.btn-cerrar-sesion:active {
+    transform: translateY(-1px);
+}
+
+/* Responsive para el header */
+@media (max-width: 768px) {
+    .header-dashboard {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-dashboard h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .btn-cerrar-sesion {
+        width: 100%;
+    }
+}
+
+.btn-admins {
+    background: linear-gradient(135deg, var(--color-ahorro) 0%, var(--color-socios) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-admins:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 184, 148, 0.35);
+}
+
+.btn-admins:active {
+    transform: translateY(-1px);
+}
+
+
+.btn-admin {
+    background: linear-gradient(135deg, #2ecc71 0%, #00b894 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-admin:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 184, 148, 0.35);
+}
+
+.btn-admin:active {
+    transform: translateY(-1px);
+}
+
+/* Botón secundario (acciones frecuentes) */
+.btn-secundario {
+    background: rgba(9, 132, 227, 0.12);
+    color: #0984e3;
+    border: 2px solid rgba(9, 132, 227, 0.25);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-secundario:hover {
+    background: rgba(9, 132, 227, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-volver {
+    background: linear-gradient(135deg, var(--color-ahorro) 0%, var(--color-socios) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-volver:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(9, 132, 227, 0.3);
+}
+
+.barra-dashboard {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-barra {
+    border: none;
+    padding: 10px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    background: #f3f4f6;
+}
+
+.btn-barra:hover {
+    filter: brightness(0.97);
+}
+
+.btn-salir {
+    background: #ffe5e5;
+}
+
+/* =========================
+   TARJETA SOCIOS (centrada)
+========================= */
+#socios .valor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+#socios .valor p {
+    margin: 0;
+    font-size: 2.6rem;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    color: var(--color-mis-ahorros);
+    /* usa tu color verde/teal */
+}
+
+
+/* =========================
+   TARJETA PRÉSTAMO (centrada + botón ordenado)
+========================= */
+#Prestamos .valor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 100%;
+}
+
+#Prestamos .valor p {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1.1;
+    text-align: center;
+    color: var(--color-prestamos);
+    /* rojo */
+}
+
+/* Botón más bonito dentro de tarjeta */
+#Prestamos .valor button {
+    width: min(320px, 100%);
+    border-radius: 14px;
+    padding: 12px 16px;
+}

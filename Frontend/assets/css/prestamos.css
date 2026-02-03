@@ -1,0 +1,286 @@
+/* Estilos específicos para la página de préstamos */
+
+.header-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-volver {
+    background: linear-gradient(135deg, var(--color-ahorro) 0%, var(--color-socios) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-volver:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(9, 132, 227, 0.3);
+}
+
+/* Préstamo principal */
+.prestamo-principal {
+    border-top-color: var(--color-prestamos);
+    background: linear-gradient(135deg, rgba(214, 48, 49, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.prestamo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.estado-badge {
+    background: linear-gradient(135deg, var(--color-mis-ahorros) 0%, var(--color-socios) 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.estado-badge.pagado {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+}
+
+.prestamo-monto {
+    text-align: center;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 15px;
+    margin-bottom: 25px;
+}
+
+.prestamo-monto .label {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.valor-grande {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-prestamos);
+    margin: 0;
+}
+
+.prestamo-detalles {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.detalle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 10px;
+}
+
+.detalle-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.detalle-valor {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.detalle-valor.destacado {
+    color: var(--color-prestamos);
+    font-size: 1.2rem;
+}
+
+/* Información de mora */
+.info-mora {
+    border-top-color: var(--color-interes);
+    background: linear-gradient(135deg, rgba(253, 203, 110, 0.1) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.mora-contenido {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mora-contenido p {
+    margin: 0;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    line-height: 1.6;
+}
+
+.mora-contenido .nota {
+    background: rgba(253, 203, 110, 0.2);
+    border-left: 4px solid var(--color-interes);
+}
+
+/* Historial de préstamos */
+.header-estado {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #95a5a6;
+    letter-spacing: 0.5px;
+}
+
+.prestamo-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    gap: 15px;
+}
+
+.prestamo-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.prestamo-fecha {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.prestamo-monto-item {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-prestamos);
+    text-align: center;
+}
+
+.prestamo-estado {
+    text-align: right;
+}
+
+.badge-estado {
+    display: inline-block;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-estado.activo {
+    background: rgba(0, 184, 148, 0.15);
+    color: var(--color-mis-ahorros);
+}
+
+.badge-estado.pagado {
+    background: rgba(0, 184, 148, 0.15);
+    color: rgba(0, 120, 90, 1);
+}
+
+
+.badge-estado.vencido {
+    background: rgba(214, 48, 49, 0.15);
+    color: var(--color-prestamos);
+}
+
+/* Sin préstamos */
+.sin-prestamos {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+.sin-prestamos svg {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-volver,
+    .btn-cerrar-sesion {
+        width: 100%;
+    }
+
+    .valor-grande {
+        font-size: 2.2rem;
+    }
+
+    .prestamo-item {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .prestamo-monto-item {
+        text-align: left;
+    }
+
+    .prestamo-estado {
+        text-align: left;
+    }
+
+    .historial-header {
+        display: none;
+    }
+}
+
+/* ===== Copiado del admin-prestamos.css para que sea el mismo diseño ===== */
+.tabla-pagos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.tabla-pagos th,
+.tabla-pagos td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e9ecef;
+    text-align: left;
+}
+
+.tabla-pagos th {
+    background: rgba(0, 0, 0, 0.04);
+    font-weight: 800;
+}
+
+.tabla-pagos td.valor {
+    font-weight: 900;
+}
+
+/* ===== Estado (verdecito cuando está pagada) ===== */
+.pill-estado {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #fff;
+    line-height: 1;
+}
+
+.pill-estado.pagada {
+    background: linear-gradient(135deg, #00b894 0%, #2ecc71 100%);
+    box-shadow: 0 8px 18px rgba(0, 184, 148, 0.22);
+}
+
+.pill-estado.pendiente {
+    background: linear-gradient(135deg, #636e72 0%, #b2bec3 100%);
+    box-shadow: 0 8px 18px rgba(99, 110, 114, 0.18);
+}

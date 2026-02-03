@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natillera familiar</title>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-dashboard">
+            <h1>Esta es la información que tengo disponible para ti en este momento sobre la natillera!</h1>
+            <button id="btnAdminMontos" class="btn-secundario" style="display:none;">Agregar pagos</button>
+            <button id="btnAdminPrestamo" class="btn-secundario" style="display:none;">Gestionar préstamos</button>
+            <button id="btnCrearUsuarios" class="btn-secundario" style="display:none;">Crear usuarios</button>
+            <button id="btnCerrarSesion" class="btn-cerrar-sesion">Cerrar Sesión</button>
+        </div>
+
+        <div class="tarjetas-wrapper">
+            <section class="tarjeta" id="ahorro">
+                <header>
+                    <h2>Recuerda que estás ahorrando:</h2>
+                </header>
+                <div class="valor">
+                    <p>Consulta a la base de datos</p>
+                </div>
+            </section>
+
+            <section class="tarjeta" id="mis_ahorros">
+                <header>
+                    <h2>Actualmente tienes ahorrado:</h2>
+                </header>
+                <div class="valor">
+                    <p>Consulta a la base de datos</p>
+                </div>
+            </section>
+
+            <section class="tarjeta" id="interes">
+                <header>
+                    <h2>Con el dinero que estás ahorrando tienes en intereses un:</h2>
+                </header>
+                <div class="valor">
+                    <p>Consulta a la base de datos</p>
+                </div>
+            </section>
+
+            <section class="tarjeta" id="socios">
+                <header>
+                    <h2>Estos son los socios actuales:</h2>
+                </header>
+                <div class="valor">
+                    <p>Consulta a la base de datos</p>
+                </div>
+            </section>
+
+            <section class="tarjeta" id="Prestamos">
+                <header>
+                    <h2>Actualmente tienes prestado:</h2>
+                </header>
+                <div class="valor">
+                    <p>Consulta a la base de datos</p>
+                    <button id="btnInfoPrestamo" class="btn-primary">Más información sobre el préstamo</button>
+                </div>
+            </section>
+
+            <section class="tarjeta" id="Pollas">
+                <header>
+                    <h2>Cada mes se jugará una polla por valor de $100.000, tu número es</h2>
+                </header>
+                <div class="valor">
+                    <p>Consulta a la base de datos</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sección de Historial de Movimientos -->
+        <section class="historial-seccion">
+            <h2>Historial Reciente</h2>
+
+            <div class="historial-header">
+                <span class="header-detalle">DETALLE</span>
+                <span class="header-monto">MONTO</span>
+            </div>
+
+            <div class="historial-lista" id="historialDashboard">
+                <!-- Movimiento 1 -->
+                <div class="movimiento">
+                    <div class="movimiento-info">
+                        <div class="movimiento-icono ingreso">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="4" width="18" height="16" rx="2" />
+                                <line x1="7" y1="8" x2="7" y2="12" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                            </svg>
+                        </div>
+                        <div class="movimiento-detalle">
+                            <p class="movimiento-titulo">Aporte Mensual</p>
+                            <p class="movimiento-fecha">15 Ene 2026</p>
+                        </div>
+                    </div>
+                    <div class="movimiento-monto positivo">$150.000</div>
+                </div>
+
+                <!-- Movimiento 2 -->
+                <div class="movimiento">
+                    <div class="movimiento-info">
+                        <div class="movimiento-icono interes">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                        </div>
+                        <div class="movimiento-detalle">
+                            <p class="movimiento-titulo">Rendimiento Trimestral</p>
+                            <p class="movimiento-fecha">30 Dic 2025</p>
+                        </div>
+                    </div>
+                    <div class="movimiento-monto positivo">$12.400</div>
+                </div>
+
+                <!-- Movimiento 3 -->
+                <div class="movimiento">
+                    <div class="movimiento-info">
+                        <div class="movimiento-icono ingreso">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="4" width="18" height="16" rx="2" />
+                                <line x1="7" y1="8" x2="7" y2="12" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                            </svg>
+                        </div>
+                        <div class="movimiento-detalle">
+                            <p class="movimiento-titulo">Aporte Mensual</p>
+                            <p class="movimiento-fecha">15 Dic 2025</p>
+                        </div>
+                    </div>
+                    <div class="movimiento-monto positivo">$150.000</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="reglas-recordatorio" id="entrega">
+            <h3>REGLAS DEL JUEGO</h3>
+            <ul>
+                <li>Aportes antes del 15.</li>
+                <li>Multa por mora: $5.000.</li>
+                <li>Préstamos con interés del 3%.</li>
+                <li><strong>El dinero se entregará el día 7 de diciembre</strong></li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>Hecho por Mateo Restrepo</p>
+        </footer>
+    </div>
+
+    <script src="../assets/js/dashboard.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        verificarSesion(); // cualquier usuario
+    </script>
+
+</body>
+
+</html>
