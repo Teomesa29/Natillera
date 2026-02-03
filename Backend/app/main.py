@@ -33,13 +33,6 @@ app.include_router(dashboard_router)
 app.include_router(prestamos_router)
 app.include_router(polla_router)
 
-@app.get("/debug/db")
-def debug_db():
-    return {
-        "database_url_env": os.getenv("DATABASE_URL"),
-        "engine_url": str(engine.url),
-    }
-
 @app.get("/")
 def root():
     return {"status": "ok", "service": "API Natillera"}
@@ -73,6 +66,7 @@ def start_scheduler():
 @app.on_event("shutdown")
 def shutdown_scheduler():
     scheduler.shutdown()
+
 
 
 
