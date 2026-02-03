@@ -1,0 +1,56 @@
+{
+    "juan": {
+        "aporteMensual": 150000,
+        "mesesAportados": 3,
+        "tasaMensual": 0.01,
+        "movimientos": [
+            {
+                "fecha": "2026-01-27",
+                "tipo": "aporte",
+                "monto": 150000
+            }
+        ],
+        "prestamos": [
+            {
+                "id": 1,
+                "fecha": "2026-01-27",
+                "monto": 100000,
+                "interesMensual": 0.03,
+                "plazoMeses": 6,
+                "estado": "activo"
+            }
+        ]
+    },
+    "pedro": {
+        "aporteMensual": 200000,
+        "mesesAportados": 5,
+        "tasaMensual": 0.01,
+        "movimientos": [
+            {
+                "fecha": "2026-01-15",
+                "tipo": "aporte",
+                "monto": 200000
+            },
+            {
+                "fecha": "2026-02-15",
+                "tipo": "aporte",
+                "monto": 200000
+            },
+            {
+                "fecha": "2026-03-15",
+                "tipo": "aporte",
+                "monto": 200000
+            },
+            {
+                "fecha": "2026-04-15",
+                "tipo": "aporte",
+                "monto": 200000
+            },
+            {
+                "fecha": "2026-05-15",
+                "tipo": "aporte",
+                "monto": 200000
+            }
+        ]
+    }
+}

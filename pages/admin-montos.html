@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Montos</title>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/admin-montos.css" />
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="header-dashboard">
+            <h1>🛠️ Admin: Montos de Socios</h1>
+            <div class="header-buttons">
+                <button type="button" class="btn-volver" onclick="window.location.href='dashboard.html'">←
+                    Volver</button>
+                <button type="button" id="btnCerrarSesion" class="btn-cerrar-sesion">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <section class="tarjeta">
+            <h2>Selecciona un socio</h2>
+
+            <div class="admin-grid">
+                <div class="form-group">
+                    <label for="selectUsuario">Socio</label>
+                    <select id="selectUsuario"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="aporteMensual">Aporte mensual (COP)</label>
+                    <input id="aporteMensual" type="number" min="0" step="1000" placeholder="Ej: 150000" />
+                </div>
+
+                <div class="form-group">
+                    <label for="tasaMensual">Interés mensual (%)</label>
+                    <input id="tasaMensual" type="number" min="0" step="0.1" placeholder="Ej: 1" />
+                    <p class="ayuda">Ejemplo: 1% mensual (pon 1).</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="mesesAportados">Aporte del mes</label>
+                    <input id="mesSiguiente" type="text" readonly />
+                    <p class="ayuda">Este sera el mes que se registrara en el historial.</p>
+                </div>
+            </div>
+
+            <br>
+
+            <div class="acciones">
+                <button id="btnGuardarConfig" type="button" class="btn-admin">Guardar configuración</button>
+                <button id="btnRegistrarAporte" type="button" class="btn-secundario">Registrar aporte de este
+                    mes</button>
+                <button id="btnResetSocio" type="button" class="btn-peligro">Resetear socio</button>
+            </div>
+
+            <div class="mensaje" id="mensaje"></div>
+        </section>
+
+        <section class="tarjeta">
+            <h2>Vista previa (cálculo automático)</h2>
+
+            <div class="resumen-grid">
+                <div class="resumen-item">
+                    <span class="resumen-label">Total aportado</span>
+                    <span class="resumen-valor" id="previewTotalAportado">$0 COP</span>
+                </div>
+
+                <div class="resumen-item">
+                    <span class="resumen-label">Total ahorrado (con interés)</span>
+                    <span class="resumen-valor" id="previewTotalAhorrado">$0 COP</span>
+                </div>
+
+                <div class="resumen-item">
+                    <span class="resumen-label">Intereses ganados</span>
+                    <span class="resumen-valor" id="previewIntereses">$0 COP</span>
+                </div>
+            </div>
+
+            <p class="ayuda">
+                Nota: este cálculo es una simulación mensual: <strong>(saldo + aporte) * (1 + interés)</strong>.
+            </p>
+        </section>
+
+        <section class="tarjeta">
+            <h2>📋 Historial del socio</h2>
+
+            <div class="historial-header historial-admin">
+                <span class="header-detalle">FECHA</span>
+                <span class="header-monto">DETALLE</span>
+                <span class="header-estado">MONTO</span>
+            </div>
+
+            <div class="historial-lista" id="historialAdmin"></div>
+        </section>
+
+        <footer>
+            <p>Hecho por Mateo Restrepo</p>
+        </footer>
+    </div>
+
+    <script src="../assets/js/admin-montos.js"></script>
+    <script src="../assets/js/sesion.js"></script>
+
+</body>
+
+</html>

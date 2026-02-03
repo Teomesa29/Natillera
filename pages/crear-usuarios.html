@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crear usuarios - Natillera</title>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../assets/css/crear-usuarios.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-dashboard">
+            <h1>👤 Crear usuarios</h1>
+            <div class="barra-dashboard">
+                <button class="btn-barra" onclick="window.location.href='dashboard.html'">← Volver</button>
+                <button id="btnCerrarSesion" class="btn-barra btn-salir"
+                    onclick="window.location.href='index.html'">Cerrar sesión</button>
+            </div>
+        </div>
+
+        <div id="mensaje" class="mensaje" style="margin-top:12px;"></div>
+
+        <section class="tarjeta">
+            <form id="formCrearUsuario" class="form-admin">
+                <div class="form-row">
+                    <label>Usuario</label>
+                    <input id="usuario" required />
+                </div>
+
+                <div class="form-row">
+                    <label>Nombre</label>
+                    <input id="nombre" required />
+                </div>
+
+                <div class="form-row">
+                    <label>Teléfono</label>
+                    <input id="telefono" />
+                </div>
+
+                <div class="form-row">
+                    <label>Número de polla</label>
+                    <input id="polla" />
+                </div>
+
+                <div class="form-row">
+                    <label>Email</label>
+                    <input id="email" type="email" />
+                </div>
+
+                <div class="form-row">
+                    <label>Rol</label>
+                    <select id="rol" required>
+                        <option value="socio">socio</option>
+                        <option value="admin">admin</option>
+                    </select>
+                </div>
+
+                <hr style="margin:14px 0; opacity:.2">
+
+                <div class="form-row">
+                    <label>Ahorro mensual (COP)</label>
+                    <input id="ahorro_mensual" type="number" min="0" value="0" required />
+                </div>
+
+                <div class="form-row">
+                    <label>Interés anual (%)</label>
+                    <input id="porcentaje_interes" type="number" min="0" step="0.1" value="5" required />
+                </div>
+
+                <div class="form-row">
+                    <label>Contraseña</label>
+                    <input id="password" type="password" required />
+                </div>
+
+                <button class="btn-barra" type="submit" style="margin-top:10px;">Crear usuario</button>
+            </form>
+        </section>
+    </div>
+
+    <!-- Modal -->
+    <div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-icon" id="modalIcon">✅</div>
+            <h2 id="modalTitle" class="modal-title">Listo</h2>
+            <p id="modalText" class="modal-text">Usuario creado correctamente.</p>
+            <div class="modal-actions">
+                <button id="btnModalOk" class="btn-primary" type="button">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="../assets/js/crear-usuarios.js"></script>
+</body>
+
+</html>

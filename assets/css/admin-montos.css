@@ -1,0 +1,201 @@
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.form-group input,
+.form-group select {
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.ayuda {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.acciones {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+
+.btn-admin {
+    background: linear-gradient(135deg, #2ecc71 0%, #00b894 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-admin:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 184, 148, 0.35);
+}
+
+.btn-admin:active {
+    transform: translateY(-1px);
+}
+
+/* Botón secundario (acciones frecuentes) */
+.btn-secundario {
+    background: rgba(9, 132, 227, 0.12);
+    color: #0984e3;
+    border: 2px solid rgba(9, 132, 227, 0.25);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-secundario:hover {
+    background: rgba(9, 132, 227, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Botón peligro (reset / borrar) */
+.btn-peligro {
+    background: linear-gradient(135deg, #d63031 0%, #e17055 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.btn-peligro:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(214, 48, 49, 0.35);
+}
+
+.mensaje {
+    margin-top: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.resumen-item {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.resumen-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.resumen-valor {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text-main);
+}
+
+@media (max-width: 768px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .resumen-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Historial admin: 3 columnas */
+.historial-admin {
+    display: grid;
+    grid-template-columns: 160px 1fr 180px;
+    gap: 10px;
+}
+
+.mov-admin {
+    display: grid;
+    grid-template-columns: 160px 1fr 180px;
+    gap: 10px;
+    align-items: center;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.mov-admin:hover {
+    background: #e9ecef;
+    transform: translateX(4px);
+}
+
+.mov-admin .monto {
+    font-weight: 900;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+
+    .historial-admin,
+    .mov-admin {
+        grid-template-columns: 1fr;
+    }
+
+    .mov-admin .monto {
+        text-align: left;
+    }
+
+    .historial-admin {
+        display: none;
+        /* como en préstamos móvil */
+    }
+}
