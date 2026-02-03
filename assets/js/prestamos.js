@@ -1,4 +1,6 @@
-const API = window.API_BASE || "http://127.0.0.1:8000";
+function apiBase() {
+    return window.API_BASE || "http://127.0.0.1:8000";
+}
 
 function formatearMoneda(valor) {
     return `$${Number(valor || 0).toLocaleString("es-CO")} COP`;
@@ -178,7 +180,7 @@ async function fetchPrestamos(usuario_id) {
     const token = localStorage.getItem("access_token"); // si lo usas
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-    const res = await fetch(`${API}/api/prestamos/${usuario_id}`, { headers });
+    const res = await fetch(`${apiBase()}/api/prestamos/${usuario_id}`, { headers });
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.detail || "Error consultando préstamos");

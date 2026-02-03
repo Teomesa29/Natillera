@@ -1,4 +1,6 @@
-const API = window.API_BASE || "http://127.0.0.1:8000";
+function apiBase() {
+    return window.API_BASE || "http://127.0.0.1:8000";
+}
 
 function cerrarSesion() {
     localStorage.removeItem("sesionActiva");

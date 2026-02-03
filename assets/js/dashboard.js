@@ -1,4 +1,6 @@
-const API = window.API_BASE || "http://127.0.0.1:8000";
+function apiBase() {
+    return window.API_BASE || "http://127.0.0.1:8000";
+}
 
 function getUsuarioLocal() {
     try {
@@ -78,7 +80,7 @@ async function cargarDashboard() {
     const usuario = getUsuarioLocal();
     const token = localStorage.getItem("access_token");
 
-    const res = await fetch(`${API}/api/dashboard/${usuario.id}`, {
+    const res = await fetch(`${apiBase()}/api/dashboard/${usuario.id}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -117,7 +119,7 @@ function pintarTarjetas(data) {
 
 async function cargarEstadoPolla(usuarioId) {
     const token = localStorage.getItem("access_token");
-    const res = await fetch(`${API}/api/polla/estado/${usuarioId}`, {
+    const res = await fetch(`${apiBase()}/api/dashboard/${usuario.id}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
     const data = await res.json();

@@ -1,4 +1,6 @@
-const API = window.API_BASE || "http://127.0.0.1:8000";
+function apiBase() {
+    return window.API_BASE || "http://127.0.0.1:8000";
+}
 
 const formulario = document.querySelector('.login-form');
 const mensajeDiv = document.getElementById('mensaje');
@@ -11,7 +13,7 @@ function mostrarMensaje(texto, tipo = 'error') {
 }
 
 async function hacerLogin(usuario, password) {
-    const res = await fetch(`${API}/api/login`, {
+    const res = await fetch(`${apiBase()}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ usuario, password }),

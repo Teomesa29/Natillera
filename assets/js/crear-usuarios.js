@@ -1,4 +1,6 @@
-const API = window.API_BASE || "http://127.0.0.1:8000";
+function apiBase() {
+    return window.API_BASE || "http://127.0.0.1:8000";
+}
 
 /* ------------------ Modal ------------------ */
 function setupModal() {
@@ -76,7 +78,7 @@ async function crearUsuario(payload) {
     const headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    const res = await fetch(`${API}/api/crear_usuario`, {
+    const res = await fetch(`${apiBase()}/api/crear_usuario`, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),

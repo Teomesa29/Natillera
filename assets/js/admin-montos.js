@@ -1,4 +1,6 @@
-const API = window.API_BASE || "http://127.0.0.1:8000";
+function apiBase() {
+    return window.API_BASE || "http://127.0.0.1:8000";
+}
 
 // Anti-recarga por submits accidentales
 window.addEventListener("submit", (e) => e.preventDefault(), true);
@@ -10,7 +12,7 @@ function authHeaders() {
 
 
 async function apiFetch(path, options = {}) {
-    const res = await fetch(`${API}${path}`, {
+    const res = await fetch(`${apiBase()}${path}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
