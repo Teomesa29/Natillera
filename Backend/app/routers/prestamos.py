@@ -212,3 +212,48 @@ def registrar_pago(prestamo_id: int, monto: int = 0, db: Session = Depends(get_d
 def pagar_cuota(prestamo_id: int, db: Session = Depends(get_db)):
     # Paga una cuota "por defecto" (monto=0 hace que el backend calcule la cuota)
     return registrar_pago(prestamo_id=prestamo_id, monto=0, db=db)
+
+@router.post("/prestamos/{prestamo_id}/pagar_total")
+def pagar_total(prestamo_id: int, db: Session = Depends(get_db)):
+    prestamo = db.query(Prestamo).filter(Prestamo.id == prestamo_id).first()
+    if not prestamo:
+        raise HTTPException(status_code=404, detail="Préstamo no encontrado")
+
+    if (prestamo.estado or "").lower() == "pagado":
+        return {"mensaje": "Este préstamo ya está pagado", "prestamo_id": prestamo.id}
+
+    total_original = float(
+        prestamo.total if prestamo.total is not None
+        else ((prestamo.monto or 0) + (prestamo.intereses or 0))
+    )
+    total_pagado = _sum_pagos_prestamo(db, prestamo.usuario_id, prestamo.id)
+    saldo = max(0.0, total_original - total_pagado)
+
+    if saldo <= 0:
+        prestamo.estado = "pagado"
+        db.commit()
+        return {"mensaje": "Este préstamo ya quedó saldado", "prestamo_id": prestamo.id}
+
+    tag = _tag_prestamo(prestamo.id)
+
+    mov = Movimiento(
+        usuario_id=prestamo.usuario_id,
+        tipo="Pago Préstamo",
+        monto=int(round(saldo)),
+        fecha=datetime.now(),
+        categoria="prestamo",
+        descripcion=f"Pago total de préstamo {tag}"
+    )
+    db.add(mov)
+
+    prestamo.estado = "pagado"
+    db.commit()
+
+    return {
+        "mensaje": "Préstamo pagado completamente ✅",
+        "prestamo_id": prestamo.id,
+        "monto_pagado": int(round(saldo)),
+        "saldo_pendiente": 0,
+        "estado": prestamo.estado
+    }
+
