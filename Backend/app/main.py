@@ -67,6 +67,10 @@ def start_scheduler():
 def shutdown_scheduler():
     scheduler.shutdown()
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 
 
 
