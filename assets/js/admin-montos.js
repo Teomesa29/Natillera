@@ -1,5 +1,6 @@
-const API = localStorage.getItem("API_BASE") || "http://127.0.0.1:8000";
-
+function apiBase() {
+    return window.API_BASE || "http://127.0.0.1:8000";
+}
 // Anti-recarga por submits accidentales
 window.addEventListener("submit", (e) => e.preventDefault(), true);
 
