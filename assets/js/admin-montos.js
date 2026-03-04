@@ -102,28 +102,24 @@ function llenarSelectMeses(movs) {
         if (!String(m.tipo || "").toLowerCase().includes("aporte")) continue;
 
         const p = parseMesDescripcion(m.descripcion);
-        if (p) {
-            aportados.add(`${p.year}-${p.mesIndex}`);
+        if (p && p.year === new Date().getFullYear()) {
+            aportados.add(p.mesIndex);
         }
     }
 
     const now = new Date();
     const yearActual = now.getFullYear();
+    const mesActual = now.getMonth();
 
-    for (let y = yearActual - 1; y <= yearActual; y++) {
-        for (let i = 0; i < 12; i++) {
+    for (let i = 0; i <= mesActual; i++) {
 
-            if (y === yearActual && i > now.getMonth()) continue;
+        if (aportados.has(i)) continue;
 
-            const key = `${y}-${i}`;
-            if (aportados.has(key)) continue;
+        const opt = document.createElement("option");
+        opt.value = `${MESES[i]}|${yearActual}`;
+        opt.textContent = `${MESES[i]} ${yearActual}`;
 
-            const opt = document.createElement("option");
-            opt.value = `${MESES[i]}|${y}`;
-            opt.textContent = `${MESES[i]} ${y}`;
-
-            select.appendChild(opt);
-        }
+        select.appendChild(opt);
     }
 
     if (select.options.length === 0) {
@@ -379,5 +375,3 @@ document.addEventListener("DOMContentLoaded", async () => {
         mostrarMensaje(`❌ ${err.message || err}`, true);
     }
 });
-
-
