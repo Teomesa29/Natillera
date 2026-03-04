@@ -45,20 +45,39 @@ def sync_medellin_if_last_friday(db: Session) -> dict:
     today = date.today()
     draw_date = last_friday_of_month(today.year, today.month)
 
-    # Solo ejecutar el día exacto
-    if today != draw_date:
-        return {"ran": False, "mensaje": f"Hoy no es último viernes. Hoy={today} sorteo={draw_date}"}
+    # Si todavía no ha llegado el último viernes
+    if today < draw_date:
+        return {
+            "ran": False,
+            "mensaje": f"Aún no es fecha de sorteo. Hoy={today} sorteo={draw_date}"
+        }
 
-    # Ya existe?
+    # Verificar si ya existe
     exists = (
         db.query(ResultadoLoteria)
-        .filter(ResultadoLoteria.slug == "medellin", ResultadoLoteria.date == draw_date)
+        .filter(
+            ResultadoLoteria.slug == "medellin",
+            ResultadoLoteria.date == draw_date
+        )
         .first()
     )
-    if exists:
-        return {"ran": True, "mensaje": "Ya estaba guardado", "date": exists.date.isoformat(), "result": exists.result}
 
-    med = fetch_medellin_result(draw_date)
+    if exists:
+        return {
+            "ran": True,
+            "mensaje": "Ya estaba guardado",
+            "date": exists.date.isoformat(),
+            "result": exists.result
+        }
+
+    # Intentar traerlo
+    try:
+        med = fetch_medellin_result(draw_date)
+    except Exception as e:
+        return {
+            "ran": False,
+            "mensaje": f"Error consultando API: {str(e)}"
+        }
 
     nuevo = ResultadoLoteria(
         slug="medellin",
@@ -68,8 +87,14 @@ def sync_medellin_if_last_friday(db: Session) -> dict:
         series=med.get("series"),
         fetched_at=datetime.now(),
     )
+
     db.add(nuevo)
     db.commit()
     db.refresh(nuevo)
 
-    return {"ran": True, "mensaje": "Guardado", "date": nuevo.date.isoformat(), "result": nuevo.result}
+    return {
+        "ran": True,
+        "mensaje": "Resultado sincronizado correctamente",
+        "date": nuevo.date.isoformat(),
+        "result": nuevo.result
+    }

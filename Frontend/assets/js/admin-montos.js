@@ -89,6 +89,50 @@ function uniqueMesesAportados(movs) {
     return set.size;
 }
 
+function llenarSelectMeses(movs) {
+    const select = document.getElementById("selectMesAporte");
+    if (!select) return;
+
+    select.innerHTML = "";
+
+    const aportados = new Set();
+
+    for (const m of (movs || [])) {
+        if (!String(m.tipo || "").toLowerCase().includes("aporte")) continue;
+
+        const p = parseMesDescripcion(m.descripcion);
+        if (p) {
+            aportados.add(`${p.year}-${p.mesIndex}`);
+        }
+    }
+
+    const now = new Date();
+    const yearActual = now.getFullYear();
+
+    for (let y = yearActual - 1; y <= yearActual; y++) {
+        for (let i = 0; i < 12; i++) {
+
+            if (y === yearActual && i > now.getMonth()) continue;
+
+            const key = `${y}-${i}`;
+            if (aportados.has(key)) continue;
+
+            const opt = document.createElement("option");
+            opt.value = `${MESES[i]}|${y}`;
+            opt.textContent = `${MESES[i]} ${y}`;
+
+            select.appendChild(opt);
+        }
+    }
+
+    if (select.options.length === 0) {
+        const opt = document.createElement("option");
+        opt.textContent = "Todos los meses están pagados";
+        opt.disabled = true;
+        select.appendChild(opt);
+    }
+}
+
 function nextMesTextoFromMovs(movs) {
     const ordenados = ordenarMovimientosDesc(movs);
 
@@ -195,9 +239,7 @@ async function cargarUsuario(usuarioId) {
     document.getElementById("aporteMensual").value = Number(ahorro.ahorro_mensual || 0);
     document.getElementById("tasaMensual").value = Number(ahorro.porcentaje_interes || 0);
 
-    const mesSig = nextMesTextoFromMovs(movs);
-    document.getElementById("mesSiguiente").value = mesSig;
-    document.getElementById("btnRegistrarAporte").textContent = `Registrar aporte de: ${mesSig}`;
+    llenarSelectMeses(movs);
 
     const aporteMensual = Number(ahorro.ahorro_mensual || 0);
     const tasaPct = Number(ahorro.porcentaje_interes || 0);
@@ -284,7 +326,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             btn.disabled = true;
 
             try {
-                const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_aporte`, { method: "POST" });
+                const selectMes = document.getElementById("selectMesAporte");
+
+                if (!selectMes.value || selectMes.options[selectMes.selectedIndex].disabled) {
+                    mostrarMensaje("Selecciona un mes válido", true);
+                    btn.disabled = false;
+                    return;
+                }
+
+                const [mes, anio] = selectMes.value.split("|");
+
+                const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_aporte`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        mes,
+                        anio: Number(anio)
+                    })
+                });
                 await cargarUsuario(usuarioId);
                 mostrarMensaje(`✅ ${r?.mensaje || "Aporte registrado"}`, false);
             } catch (err) {

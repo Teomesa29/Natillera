@@ -1,20 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-import os
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from app.models import models  
-from app.database import SessionLocal
+
+from app.database import SessionLocal, engine, Base
 from app.services.polla_scheduler import sync_medellin_if_last_friday
-from app.database import engine, Base
 from app.routers.crear_usuario import router as crear_usuario_router
 from app.routers.auth import router as auth_router
-from app.routers.Finanzas import router as finanzas_router
+from app.routers.Finanzas import aplicar_interes_mensual_automatico, router as finanzas_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.prestamos import router as prestamos_router
 from app.routers.polla import router as polla_router
-from fastapi import Response
-
 
 Base.metadata.create_all(bind=engine)
 
@@ -35,15 +31,32 @@ app.include_router(dashboard_router)
 app.include_router(prestamos_router)
 app.include_router(polla_router)
 
+
 @app.get("/")
 def root():
     return {"status": "ok", "service": "API Natillera"}
 
-# -------------------------
-# Scheduler (APScheduler)
-# -------------------------
+
+# =========================================================
+# 🔥 SCHEDULER GLOBAL
+# =========================================================
 scheduler = BackgroundScheduler(timezone="America/Bogota")
 
+
+# -------------------------
+# JOB 1: Interés mensual
+# -------------------------
+scheduler.add_job(
+    aplicar_interes_mensual_automatico,
+    CronTrigger(day=1, hour=5, minute=5),
+    id="interes_mensual",
+    replace_existing=True
+)
+
+
+# -------------------------
+# JOB 2: Sync Polla
+# -------------------------
 def job_sync_polla():
     db = SessionLocal()
     try:
@@ -54,25 +67,31 @@ def job_sync_polla():
     finally:
         db.close()
 
+
+scheduler.add_job(
+    job_sync_polla,
+    CronTrigger(hour=22, minute=10),
+    id="sync_polla_medellin",
+    replace_existing=True
+)
+
+
+# =========================================================
+# EVENTOS FASTAPI
+# =========================================================
 @app.on_event("startup")
 def start_scheduler():
-    # corre todos los días 22:10 (ajústalo)
-    scheduler.add_job(
-        job_sync_polla,
-        CronTrigger(hour=22, minute=10),
-        id="sync_polla_medellin",
-        replace_existing=True,
-    )
-    scheduler.start()
+    if not scheduler.running:
+        scheduler.start()
+        print("✅ Scheduler iniciado correctamente")
+
 
 @app.on_event("shutdown")
 def shutdown_scheduler():
     scheduler.shutdown()
+    print("🛑 Scheduler detenido")
+
 
 @app.api_route("/health", methods=["GET", "HEAD"])
 def health():
     return Response(status_code=200)
-
-
-
-
