@@ -11,7 +11,7 @@ function authHeaders() {
 
 
 async function apiFetch(path, options = {}) {
-    const res = await fetch(`${API}${path}`, {
+    const res = await fetch(`${apiBase}${path}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
@@ -379,3 +379,4 @@ document.addEventListener("DOMContentLoaded", async () => {
         mostrarMensaje(`❌ ${err.message || err}`, true);
     }
 });
+
