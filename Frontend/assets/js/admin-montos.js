@@ -608,19 +608,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 } finally {
                     btnAplicarAjuste.disabled = false;
                 }
-        // ✅ Registrar Descuento por Polla Ganada
+        // ✅ Registrar Descuento Fijo por Polla Ganada (-$10.000)
         if (btnAplicarDescuentoPolla) {
             btnAplicarDescuentoPolla.addEventListener("click", async (e) => {
                 e.preventDefault();
                 const usuarioId = Number(select.value);
-                const inputMonto = document.getElementById("montoDescuentoPolla");
-                const montoVal = Number(inputMonto?.value || 0);
-
-                if (!montoVal || montoVal <= 0) {
-                    mostrarMensaje("Ingresa un monto válido mayor a 0 para el descuento por polla ganada", true);
-                    return;
-                }
-
                 btnAplicarDescuentoPolla.disabled = true;
 
                 try {
@@ -629,16 +621,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                         body: JSON.stringify({
                             usuario_id: usuarioId,
                             tipo: "Descuento por Polla",
-                            monto: -Math.abs(montoVal),
+                            monto: -10000,
                             descripcion: "Descuento por polla ganada"
                         })
                     });
-                    if (inputMonto) inputMonto.value = "";
                     await Promise.all([
                         cargarUsuario(usuarioId),
                         cargarMatrizPagos()
                     ]);
-                    mostrarMensaje(`✅ ${r?.mensaje || `Descuento por polla ganada (-$${montoVal.toLocaleString("es-CO")}) aplicado`}`, false);
+                    mostrarMensaje(`✅ ${r?.mensaje || "Descuento de -$10.000 por polla ganada aplicado"}`, false);
                 } catch (err) {
                     mostrarMensaje(`❌ ${err.message}`, true);
                 } finally {
