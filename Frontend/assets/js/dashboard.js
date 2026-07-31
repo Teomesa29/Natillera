@@ -126,11 +126,14 @@ function renderMatrizPersonal(movs) {
     }
 
     let trHtml = '<tr style="border-bottom: 1px solid #f1f5f9;">';
+    let totalAhorradoAcumulado = 0;
+
     for (let m = 0; m < 12; m++) {
         const estado = mesesEstado[m];
         let cellContent = '<span style="color: #cbd5e1;">❌</span>';
         let cellBg = '';
         let titleInfo = `Mes de ${MESES[m]}`;
+        totalAhorradoAcumulado += Number(estado.montoAporte || 0);
 
         if (estado.tieneAjuste) {
             const montoFormated = estado.montoAporte !== 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #ea580c;">$${Math.round(estado.montoAporte/1000)}k</span>` : '';
@@ -159,7 +162,12 @@ function renderMatrizPersonal(movs) {
             </td>
         `;
     }
-    trHtml += '</tr>';
+
+    trHtml += `
+        <td style="padding: 12px; text-align: right; font-weight: 800; color: #10b981; font-size: 0.95rem;">
+            ${formatearMoneda(totalAhorradoAcumulado)}
+        </td>
+    </tr>`;
 
     body.innerHTML = trHtml;
 }
