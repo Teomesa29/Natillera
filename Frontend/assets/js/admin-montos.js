@@ -580,55 +580,28 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
 
-        // ✅ Registrar Ajuste Manual / Penalización (POST)
+        // ✅ Registrar Penalización Fija por Mora (-$10.000)
         if (btnAplicarAjuste) {
             btnAplicarAjuste.addEventListener("click", async (e) => {
                 e.preventDefault();
                 const usuarioId = Number(select.value);
-                const tipoOp = document.getElementById("selectTipoAjuste")?.value;
-                const montoVal = Number(document.getElementById("montoAjuste")?.value || 0);
-                const descVal = document.getElementById("descAjuste")?.value || "";
-
-                if (!montoVal || montoVal <= 0) {
-                    mostrarMensaje("Por favor ingresa un monto válido mayor a 0", true);
-                    return;
-                }
-
-                let montoFinal = montoVal;
-                let tipoNombre = "Ajuste Manual";
-
-                if (tipoOp === "descuento_polla") {
-                    montoFinal = -Math.abs(montoVal);
-                    tipoNombre = "Descuento por Polla";
-                } else if (tipoOp === "penalizacion_mora") {
-                    montoFinal = -Math.abs(montoVal);
-                    tipoNombre = "Penalización por Mora";
-                } else if (tipoOp === "abono_ahorro") {
-                    montoFinal = Math.abs(montoVal);
-                    tipoNombre = "Abono a Ahorro";
-                } else {
-                    montoFinal = descVal.toLowerCase().includes("descuento") || descVal.toLowerCase().includes("mora") ? -Math.abs(montoVal) : montoVal;
-                    tipoNombre = "Ajuste Personalizado";
-                }
-
                 btnAplicarAjuste.disabled = true;
+
                 try {
                     const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_ajuste`, {
                         method: "POST",
                         body: JSON.stringify({
                             usuario_id: usuarioId,
-                            tipo: tipoNombre,
-                            monto: montoFinal,
-                            descripcion: descVal || tipoNombre
+                            tipo: "Penalización por Mora",
+                            monto: -10000,
+                            descripcion: "Descuento por mora"
                         })
                     });
-                    document.getElementById("montoAjuste").value = "";
-                    document.getElementById("descAjuste").value = "";
                     await Promise.all([
                         cargarUsuario(usuarioId),
                         cargarMatrizPagos()
                     ]);
-                    mostrarMensaje(`✅ ${r?.mensaje || "Ajuste registrado"}`, false);
+                    mostrarMensaje(`✅ ${r?.mensaje || "Descuento de -$10.000 por mora aplicado"}`, false);
                 } catch (err) {
                     mostrarMensaje(`❌ ${err.message}`, true);
                 } finally {

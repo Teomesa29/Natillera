@@ -62,26 +62,12 @@
 
             <br>
             <h4 style="margin: 0 0 12px 0; color: var(--text-main); font-size: 1rem;">⚖️ Ajustes Especiales, Penalizaciones y Descuentos</h4>
-            <div class="admin-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <div class="form-group">
-                    <label for="selectTipoAjuste">Tipo de Operación</label>
-                    <select id="selectTipoAjuste" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
-                        <option value="descuento_polla">Descuento por Polla (-)</option>
-                        <option value="penalizacion_mora">Penalización por Mora (-)</option>
-                        <option value="abono_ahorro">Abono a Ahorro (+)</option>
-                    </select>
+            <div style="background: #fff1f2; border: 1px solid #ffe4e6; border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h5 style="margin: 0; font-size: 0.95rem; color: #e11d48;">⚠️ Penalización Fija por Mora</h5>
+                    <p style="margin: 3px 0 0 0; font-size: 0.82rem; color: #9f1239;">Aplica un descuento automático de <strong>-$10.000 COP</strong> registrado como "Descuento por mora".</p>
                 </div>
-                <div class="form-group">
-                    <label for="montoAjuste">Monto (COP)</label>
-                    <input id="montoAjuste" type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Ej: 20000" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;" />
-                </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label for="descAjuste">Detalle / Motivo del Ajuste</label>
-                    <input id="descAjuste" type="text" placeholder="Ej: Descuento cuota mayo por polla ganada" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;" />
-                </div>
-            </div>
-            <div style="margin-top: 12px;">
-                <button id="btnAplicarAjuste" type="button" class="btn-secundario" style="background: #e11d48; color: white;">Aplicar Ajuste / Penalización</button>
+                <button id="btnAplicarAjuste" type="button" class="btn-secundario" style="background: #e11d48; color: white; padding: 10px 18px; font-weight: 700;">💸 Aplicar Descuento -$10.000</button>
             </div>
 
             <br>
