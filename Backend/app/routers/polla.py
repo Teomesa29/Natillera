@@ -127,8 +127,42 @@ def estado_polla(usuario_id: int, db: Session = Depends(get_db)):
                     else f"Número ganador del mes pasado: {res2}. No ganaste.")
     }
 
+def sync_today_lottery_if_needed(db: Session):
+    """
+    Si hoy es viernes (o un sorteo reciente no se ha guardado), consulta la API externa y persiste el resultado.
+    """
+    today = date.today()
+    # Si hoy es viernes (weekday 4) o si estamos después del sorteo
+    draw_date = today if today.weekday() == 4 else last_friday_of_month(today.year, today.month)
+    
+    # Verificar si ya existe este resultado en DB
+    existente = db.query(ResultadoLoteria).filter(
+        ResultadoLoteria.slug == "medellin",
+        ResultadoLoteria.date == draw_date
+    ).first()
+
+    if not existente:
+        try:
+            med = fetch_medellin_result(draw_date)
+            if med and med.get("result"):
+                nuevo = ResultadoLoteria(
+                    slug="medellin",
+                    lottery="MEDELLIN",
+                    date=draw_date,
+                    result=med["result"],
+                    series=med.get("series"),
+                    fetched_at=datetime.now(),
+                )
+                db.add(nuevo)
+                db.commit()
+        except Exception as e:
+            print(f"Sorteo para {draw_date} aún no disponible en API externa: {e}")
+
 @router.get("/polla/historial")
 def historial_polla(db: Session = Depends(get_db)):
+    # Auto-sincronizar sorteo de hoy si aplica
+    sync_today_lottery_if_needed(db)
+    
     resultados = db.query(ResultadoLoteria).order_by(ResultadoLoteria.date.desc()).all()
     return [
         {

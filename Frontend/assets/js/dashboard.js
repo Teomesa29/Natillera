@@ -166,7 +166,7 @@ function renderMatrizPersonal(movs, totalAhorradoUsuario = 0) {
     const totalFinal = totalCalculado > 0 ? totalCalculado : Number(totalAhorradoUsuario || 0);
 
     trHtml += `
-        <td style="padding: 12px; text-align: right; font-weight: 800; color: #10b981; font-size: 0.95rem;">
+        <td style="padding: 12px 6px; text-align: center; font-weight: 800; color: #10b981; font-size: 0.88rem; white-space: nowrap;">
             ${formatearMoneda(totalFinal)}
         </td>
     </tr>`;
