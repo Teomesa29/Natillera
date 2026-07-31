@@ -246,3 +246,53 @@ function animate() {
 }
 
 animate();
+
+// =======================================================
+// ALGORITMO CHROMA KEY EN TIEMPO REAL (REMOVECION DE VERDE)
+// =======================================================
+const videoPiggy = document.getElementById('videoPiggy');
+const canvasPiggy = document.getElementById('canvasPiggy');
+
+if (videoPiggy && canvasPiggy) {
+    const ctxPiggy = canvasPiggy.getContext('2d', { willReadFrequently: true });
+
+    function renderChromaKey() {
+        if (!videoPiggy.paused && !videoPiggy.ended) {
+            if (canvasPiggy.width !== videoPiggy.videoWidth && videoPiggy.videoWidth > 0) {
+                canvasPiggy.width = videoPiggy.videoWidth;
+                canvasPiggy.height = videoPiggy.videoHeight;
+            }
+
+            if (canvasPiggy.width > 0) {
+                ctxPiggy.drawImage(videoPiggy, 0, 0, canvasPiggy.width, canvasPiggy.height);
+                const frame = ctxPiggy.getImageData(0, 0, canvasPiggy.width, canvasPiggy.height);
+                const l = frame.data.length / 4;
+
+                for (let i = 0; i < l; i++) {
+                    const r = frame.data[i * 4 + 0];
+                    const g = frame.data[i * 4 + 1];
+                    const b = frame.data[i * 4 + 2];
+
+                    // Detección de verde de pantalla cromática
+                    if (g > 70 && g > r * 1.15 && g > b * 1.15) {
+                        frame.data[i * 4 + 3] = 0; // Transparencia total
+                    } else if (g > 60 && g > r * 1.05 && g > b * 1.05) {
+                        // Suavizado de bordes (Feathering)
+                        frame.data[i * 4 + 3] = 120;
+                    }
+                }
+                ctxPiggy.putImageData(frame, 0, 0);
+            }
+        }
+        requestAnimationFrame(renderChromaKey);
+    }
+
+    videoPiggy.addEventListener('play', () => {
+        renderChromaKey();
+    });
+
+    // Iniciar si ya está reproduciendo
+    if (!videoPiggy.paused) {
+        renderChromaKey();
+    }
+}
