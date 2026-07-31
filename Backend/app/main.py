@@ -19,6 +19,7 @@ app = FastAPI(title="API Natillera")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://teomesa29.github.io",
         "http://127.0.0.1:5500",
         "http://localhost:5500",
         "http://127.0.0.1:8000",
@@ -26,7 +27,7 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "http://localhost:3000",
     ],
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:[0-9]+)?",
+    allow_origin_regex=r"https?://.*\.github\.io|https?://(localhost|127\.0\.0\.1)(:[0-9]+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
