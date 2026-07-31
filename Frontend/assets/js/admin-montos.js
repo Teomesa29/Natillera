@@ -362,9 +362,10 @@ async function cargarMatrizPagos() {
                         titleText = 'Polla pagada (Aporte pendiente)';
                     }
 
+                    const nombreSafe = String(u.nombre || "").replace(/'/g, "\\'");
                     trHtml += `
                         <td style="padding: 8px 4px; text-align: center;">
-                            <div onclick="togglePagoMesModal(${u.usuario_id}, '${u.nombre}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${titleText} (Haz clic para modificar o editar cuota)" style="width: 28px; height: 28px; background: ${bgBox}; border-radius: 6px; margin: 0 auto; cursor: pointer; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
+                            <div onclick="togglePagoMesModal(${u.usuario_id}, '${nombreSafe}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${titleText} (Haz clic para modificar o editar cuota)" style="width: 28px; height: 28px; background: ${bgBox}; border-radius: 6px; margin: 0 auto; cursor: pointer; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
                         </td>
                     `;
                 }
@@ -420,6 +421,7 @@ async function cargarMatrizPagos() {
                     let cellContent = '<span style="color: #cbd5e1;">❌</span>';
                     let cellBg = '';
                     let titleInfo = `${u.nombre} - ${MESES[m]}`;
+                    const nombreSafe = String(u.nombre || "").replace(/'/g, "\\'");
 
                     if (pago.tiene_ajuste) {
                         const montoFormated = pago.monto_aporte !== 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #ea580c;">$${Math.round(pago.monto_aporte/1000)}k</span>` : '';
@@ -440,7 +442,7 @@ async function cargarMatrizPagos() {
                     }
 
                     trHtml += `
-                        <td onclick="togglePagoMesModal(${u.usuario_id}, '${u.nombre}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${titleInfo} (Clic para gestionar o editar cuota)" style="padding: 8px 4px; text-align: center; font-size: 0.95rem; cursor: pointer; ${cellBg} transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+                        <td onclick="togglePagoMesModal(${u.usuario_id}, '${nombreSafe}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${titleInfo} (Clic para gestionar o editar cuota)" style="padding: 8px 4px; text-align: center; font-size: 0.95rem; cursor: pointer; ${cellBg} transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
                             ${cellContent}
                         </td>
                     `;
