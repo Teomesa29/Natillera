@@ -335,7 +335,7 @@ async function cargarMatrizPagos() {
             bodyHabito.innerHTML = usuarios.map(u => {
                 let trHtml = `
                     <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <td style="padding: 12px; font-weight: 700; color: var(--text-main); position: sticky; left: 0; background: white; z-index: 1;">
+                        <td class="col-socio-body" style="padding: 12px; font-weight: 700; color: var(--text-main); background: white;">
                             ${u.nombre} <span style="font-size: 0.75rem; color: #ec4899; font-weight: 800;">(#${String(u.polla_numero || 0).padStart(2, '0')})</span>
                         </td>
                 `;
@@ -411,7 +411,7 @@ async function cargarMatrizPagos() {
             bodyMatriz.innerHTML = usuarios.map(u => {
                 let trHtml = `
                     <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <td style="padding: 12px; font-weight: 700; color: var(--text-main); position: sticky; left: 0; background: white; z-index: 1;">
+                        <td class="col-socio-body" style="padding: 12px; font-weight: 700; color: var(--text-main); background: white;">
                             ${u.nombre} <span style="font-size: 0.75rem; color: #ec4899; font-weight: 800;">(#${String(u.polla_numero || 0).padStart(2, '0')})</span>
                         </td>
                 `;

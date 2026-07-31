@@ -191,6 +191,12 @@
 }
 .mov-admin .monto { font-weight: 800; text-align: right; color: var(--color-mis-ahorros); font-size: 1.1rem; }
 
+.col-socio-header, .col-socio-body {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
 @media (max-width: 768px) {
     .header-dashboard { 
         position: static !important; 
@@ -203,19 +209,25 @@
     .mov-admin .monto { text-align: left; margin-top: 4px; font-size: 1.1rem; }
     .historial-admin { display: none; }
     
-    /* Scroll táctil horizontal fluido y limpio para tablas en celulares */
-    div[style*="overflow-x: auto"] {
+    /* En celulares se desactiva el sticky de la columna del socio para evitar que tape las celdas de los meses */
+    .col-socio-header, .col-socio-body {
+        position: static !important;
+    }
+
+    /* Scroll táctil horizontal fluido para contenedores */
+    .tabla-responsive-container {
+        overflow-x: auto !important;
+        max-width: 100% !important;
         -webkit-overflow-scrolling: touch !important;
         border-radius: 12px;
         margin-left: 0;
         margin-right: 0;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
     }
     
-    /* Evitar distorsión de la columna SOCIO sticky y permitir el desplazamiento completo de la tabla */
-    #tablaHabitoPagos, #tablaMatrizAdmin, #tablaMatrizPagos {
-        width: 1050px !important;
-        min-width: 1050px !important;
+    /* Lienzo ancho uniforme sin deformación de columnas */
+    .tabla-admin-custom {
+        width: 880px !important;
+        min-width: 880px !important;
         max-width: none !important;
         table-layout: fixed !important;
     }
