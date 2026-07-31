@@ -343,13 +343,14 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
             break
 
     if accion == "eliminar":
-        if mov_encontrado:
-            if tipo_pago == "aporte":
-                ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) - mov_encontrado.monto))
-            db.delete(mov_encontrado)
+        if movs:
+            for m in movs:
+                if (m.monto or 0) > 0 and ("aporte" in (m.tipo or "").lower() or "aporte" in (m.descripcion or "").lower()):
+                    ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) - m.monto))
+                db.delete(m)
             db.commit()
-            return {"mensaje": f"Pago de {tipo_pago} de {mes_nombre} eliminado"}
-        return {"mensaje": "No se encontró pago previo para eliminar"}
+            return {"mensaje": f"Registro de {tipo_pago} de {mes_nombre} eliminado"}
+        return {"mensaje": "No se encontró registro previo para eliminar"}
     else: # registrar
         if not mov_encontrado:
             monto = int(ahorro.ahorro_mensual or 0) if tipo_pago == "aporte" else 10000
@@ -480,7 +481,15 @@ def registrar_ajuste_manual(usuario_id: int, payload: AjusteManualPayload, db: S
 
     categoria = "egreso" if monto < 0 else "ingreso"
     tipo = payload.tipo or ("Descuento Ahorro" if monto < 0 else "Abono Ahorro")
-    descripcion = payload.descripcion or f"Ajuste manual ({'descuento' if monto < 0 else 'abono'})"
+    
+    # Detectar mes para asociar en la matriz
+    mes_patron = ""
+    parsed = parse_mes_desde_descripcion(payload.descripcion or "")
+    if not parsed:
+        mes_texto = siguiente_mes_texto_desde_movimientos(db, usuario_id)
+        mes_patron = f" ({mes_texto})"
+    
+    descripcion = f"{payload.descripcion or 'Ajuste manual'}{mes_patron}"
 
     mov = Movimiento(
         usuario_id=usuario_id,
