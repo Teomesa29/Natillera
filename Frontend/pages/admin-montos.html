@@ -145,24 +145,24 @@
 
             <!-- Tabla de Hábito de Pago por Socio -->
             <div style="overflow-x: auto; max-width: 100%; border-radius: 16px; border: 1px solid #e2e8f0;">
-                <table id="tablaHabitoPagos" style="width: 100%; border-collapse: collapse; min-width: 1000px; font-size: 0.88rem;">
+                <table id="tablaHabitoPagos" style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 0.85rem;">
                     <thead>
-                        <tr style="background: #94a3b8; color: white; text-transform: uppercase; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px;">
-                            <th style="padding: 12px 14px; text-align: left; position: sticky; left: 0; background: #64748b; z-index: 2; color: white; min-width: 180px;">SOCIO</th>
-                            <th style="padding: 12px 6px; text-align: center;">ENE</th>
-                            <th style="padding: 12px 6px; text-align: center;">FEB</th>
-                            <th style="padding: 12px 6px; text-align: center;">MAR</th>
-                            <th style="padding: 12px 6px; text-align: center;">ABR</th>
-                            <th style="padding: 12px 6px; text-align: center;">MAY</th>
-                            <th style="padding: 12px 6px; text-align: center;">JUN</th>
-                            <th style="padding: 12px 6px; text-align: center;">JUL</th>
-                            <th style="padding: 12px 6px; text-align: center;">AGO</th>
-                            <th style="padding: 12px 6px; text-align: center;">SEP</th>
-                            <th style="padding: 12px 6px; text-align: center;">OCT</th>
-                            <th style="padding: 12px 6px; text-align: center;">NOV</th>
-                            <th style="padding: 12px 6px; text-align: center;">DIC</th>
-                            <th style="padding: 12px 14px; text-align: right; background: #64748b; color: white;">TOTAL AHORRADO</th>
-                            <th style="padding: 12px 14px; text-align: center; background: #64748b; color: white;">RECORDAR</th>
+                        <tr style="background: #94a3b8; color: white; text-transform: uppercase; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.5px;">
+                            <th style="padding: 10px 8px; text-align: left; position: sticky; left: 0; background: #64748b; z-index: 2; color: white; width: 140px;">SOCIO</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">ENE</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">FEB</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">MAR</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">ABR</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">MAY</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">JUN</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">JUL</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">AGO</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">SEP</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">OCT</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">NOV</th>
+                            <th style="padding: 10px 2px; text-align: center; width: 36px;">DIC</th>
+                            <th style="padding: 10px 8px; text-align: right; background: #64748b; color: white; width: 110px;">TOTAL</th>
+                            <th style="padding: 10px 8px; text-align: center; background: #64748b; color: white; width: 90px;">ACCIONAL</th>
                         </tr>
                     </thead>
                     <tbody id="bodyHabitoPagos">
@@ -185,23 +185,23 @@
             </div>
 
             <div style="overflow-x: auto; max-width: 100%; border-radius: 16px; border: 1px solid #e2e8f0;">
-                <table id="tablaMatrizPagos" style="width: 100%; border-collapse: collapse; min-width: 1100px; font-size: 0.88rem;">
+                <table id="tablaMatrizPagos" style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 0.85rem;">
                     <thead>
-                        <tr style="background: #f1f5f9; color: var(--text-main); text-transform: uppercase; font-weight: 800; border-bottom: 2px solid #cbd5e1;">
-                            <th style="padding: 14px 12px; text-align: left; position: sticky; left: 0; background: #f1f5f9; z-index: 2;">Socio</th>
-                            <th style="padding: 14px 8px; text-align: center;">Ene</th>
-                            <th style="padding: 14px 8px; text-align: center;">Feb</th>
-                            <th style="padding: 14px 8px; text-align: center;">Mar</th>
-                            <th style="padding: 14px 8px; text-align: center;">Abr</th>
-                            <th style="padding: 14px 8px; text-align: center;">May</th>
-                            <th style="padding: 14px 8px; text-align: center;">Jun</th>
-                            <th style="padding: 14px 8px; text-align: center;">Jul</th>
-                            <th style="padding: 14px 8px; text-align: center;">Ago</th>
-                            <th style="padding: 14px 8px; text-align: center;">Sep</th>
-                            <th style="padding: 14px 8px; text-align: center;">Oct</th>
-                            <th style="padding: 14px 8px; text-align: center;">Nov</th>
-                            <th style="padding: 14px 8px; text-align: center;">Dic</th>
-                            <th style="padding: 14px 12px; text-align: right; background: #f1f5f9;">Total Ahorrado</th>
+                        <tr style="background: #f1f5f9; color: var(--text-main); text-transform: uppercase; font-weight: 800; border-bottom: 2px solid #cbd5e1; font-size: 0.75rem;">
+                            <th style="padding: 10px 8px; text-align: left; position: sticky; left: 0; background: #f1f5f9; z-index: 2; width: 140px;">Socio</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Ene</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Feb</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Mar</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Abr</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">May</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Jun</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Jul</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Ago</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Sep</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Oct</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Nov</th>
+                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Dic</th>
+                            <th style="padding: 10px 8px; text-align: right; background: #e2e8f0; color: #1e293b; width: 110px;">TOTAL</th>
                         </tr>
                     </thead>
                     <tbody id="bodyMatrizPagos">
