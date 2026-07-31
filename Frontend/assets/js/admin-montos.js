@@ -362,10 +362,10 @@ async function cargarMatrizPagos() {
                         titleText = 'Polla pagada (Aporte pendiente)';
                     }
 
-                    const nombreSafe = String(u.nombre || "").replace(/'/g, "\\'");
+                    const nombreLimpio = String(u.nombre || "").replace(/"/g, '&quot;');
                     trHtml += `
                         <td style="padding: 8px 4px; text-align: center;">
-                            <div onclick="togglePagoMesModal(${u.usuario_id}, '${nombreSafe}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${titleText} (Haz clic para modificar o editar cuota)" style="width: 28px; height: 28px; background: ${bgBox}; border-radius: 6px; margin: 0 auto; cursor: pointer; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
+                            <div class="celda-mes-interactiva" data-usuario-id="${u.usuario_id}" data-nombre="${nombreLimpio}" data-mes-idx="${m}" data-mes-nombre="${MESES[m]}" data-tiene-aporte="${pago.aporte ? 'true' : 'false'}" data-tiene-polla="${pago.polla ? 'true' : 'false'}" data-monto-aporte="${pago.monto_aporte || u.ahorro_mensual || 0}" title="${titleText} (Haz clic para modificar o editar cuota)" style="width: 28px; height: 28px; background: ${bgBox}; border-radius: 6px; margin: 0 auto; cursor: pointer; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
                         </td>
                     `;
                 }
@@ -441,8 +441,9 @@ async function cargarMatrizPagos() {
                         cellBg = 'background: rgba(236, 72, 153, 0.08);';
                     }
 
+                    const nombreLimpio = String(u.nombre || "").replace(/"/g, '&quot;');
                     trHtml += `
-                        <td onclick="togglePagoMesModal(${u.usuario_id}, '${nombreSafe}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${titleInfo} (Clic para gestionar o editar cuota)" style="padding: 8px 4px; text-align: center; font-size: 0.95rem; cursor: pointer; ${cellBg} transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+                        <td class="celda-mes-interactiva" data-usuario-id="${u.usuario_id}" data-nombre="${nombreLimpio}" data-mes-idx="${m}" data-mes-nombre="${MESES[m]}" data-tiene-aporte="${pago.aporte ? 'true' : 'false'}" data-tiene-polla="${pago.polla ? 'true' : 'false'}" data-monto-aporte="${pago.monto_aporte || u.ahorro_mensual || 0}" title="${titleInfo} (Clic para gestionar o editar cuota)" style="padding: 8px 4px; text-align: center; font-size: 0.95rem; cursor: pointer; ${cellBg} transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
                             ${cellContent}
                         </td>
                     `;
@@ -520,7 +521,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         const btnAplicarAjuste = document.getElementById("btnAplicarAjuste");
         const btnAplicarDescuentoPolla = document.getElementById("btnAplicarDescuentoPolla");
 
-        // Carga 100% paralela instantánea de la lista de usuarios y matriz general
+        // Delegación de eventos segura para abrir el modal de mes al hacer clic en celdas
+        document.addEventListener("click", (e) => {
+            const celda = e.target.closest(".celda-mes-interactiva");
+            if (celda) {
+                const usuarioId = Number(celda.dataset.usuarioId);
+                const nombreSocio = celda.dataset.nombre;
+                const mesIdx = Number(celda.dataset.mesIdx);
+                const nombreMes = celda.dataset.mesNombre;
+                const tieneAporte = celda.dataset.tieneAporte === "true";
+                const tienePolla = celda.dataset.tienePolla === "true";
+                const montoActual = Number(celda.dataset.montoAporte || 0);
+
+                togglePagoMesModal(usuarioId, nombreSocio, mesIdx, nombreMes, tieneAporte, tienePolla, montoActual);
+            }
+        });
         const [usuarios] = await Promise.all([
             cargarUsuarios(),
             cargarMatrizPagos()
