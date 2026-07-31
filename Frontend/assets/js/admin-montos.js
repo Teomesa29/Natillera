@@ -625,6 +625,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 } finally {
                     btnAplicarAjuste.disabled = false;
                 }
+            });
+        }
+
         // ✅ Registrar Descuento Fijo por Polla Ganada (-$10.000)
         if (btnAplicarDescuentoPolla) {
             btnAplicarDescuentoPolla.addEventListener("click", async (e) => {
