@@ -274,6 +274,10 @@ button {
     cursor: pointer;
     transition: var(--transition-pro);
     box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-secundario:hover {
@@ -292,6 +296,10 @@ button {
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition-pro);
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-cerrar-sesion:hover {

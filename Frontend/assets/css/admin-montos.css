@@ -207,17 +207,17 @@
     div[style*="overflow-x: auto"] {
         -webkit-overflow-scrolling: touch !important;
         border-radius: 12px;
-        margin-left: -5px;
-        margin-right: -5px;
+        margin-left: 0;
+        margin-right: 0;
         box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
     }
     
-    /* Asegurar min-width óptimo para evitar texto o celdas aplastadas */
-    #tablaHabitoPagos {
-        min-width: 850px !important;
-    }
-    #tablaMatrizAdmin {
-        min-width: 900px !important;
+    /* Evitar distorsión de la columna SOCIO sticky y permitir el desplazamiento completo de la tabla */
+    #tablaHabitoPagos, #tablaMatrizAdmin, #tablaMatrizPagos {
+        width: 1050px !important;
+        min-width: 1050px !important;
+        max-width: none !important;
+        table-layout: fixed !important;
     }
     
     /* Adaptar botones de acciones */
