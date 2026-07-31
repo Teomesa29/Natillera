@@ -62,12 +62,25 @@
 
             <br>
             <h4 style="margin: 0 0 12px 0; color: var(--text-main); font-size: 1rem;">⚖️ Ajustes Especiales, Penalizaciones y Descuentos</h4>
-            <div style="background: #fff1f2; border: 1px solid #ffe4e6; border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <h5 style="margin: 0; font-size: 0.95rem; color: #e11d48;">⚠️ Penalización Fija por Mora</h5>
-                    <p style="margin: 3px 0 0 0; font-size: 0.82rem; color: #9f1239;">Aplica un descuento automático de <strong>-$10.000 COP</strong> registrado como "Descuento por mora".</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                <!-- Descuento 1: Penalización por Mora Fija -->
+                <div style="background: #fff1f2; border: 1px solid #ffe4e6; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+                    <div>
+                        <h5 style="margin: 0; font-size: 0.95rem; color: #e11d48;">⚠️ Penalización por Mora</h5>
+                        <p style="margin: 3px 0 0 0; font-size: 0.82rem; color: #9f1239;">Aplica un descuento de <strong>-$10.000 COP</strong> en el último mes pagado con la observación "Descuento por mora".</p>
+                    </div>
+                    <button id="btnAplicarAjuste" type="button" class="btn-secundario" style="background: #e11d48; color: white; padding: 10px 14px; font-weight: 700;">💸 Descuento por Mora (-$10.000)</button>
                 </div>
-                <button id="btnAplicarAjuste" type="button" class="btn-secundario" style="background: #e11d48; color: white; padding: 10px 18px; font-weight: 700;">💸 Aplicar Descuento -$10.000</button>
+
+                <!-- Descuento 2: Descuento por Polla Ganada -->
+                <div style="background: #fff7ed; border: 1px solid #ffedd5; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+                    <div>
+                        <h5 style="margin: 0; font-size: 0.95rem; color: #c2410c;">🎲 Descuento por Polla Ganada</h5>
+                        <p style="margin: 3px 0 0 0; font-size: 0.82rem; color: #9a3412;">Ingresa el monto a descontar del pozo de la polla ganada para saldar la cuota del último mes.</p>
+                        <input id="montoDescuentoPolla" type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Monto Ej: 20000" style="width: 100%; margin-top: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid #fed7aa; font-size: 0.88rem; box-sizing: border-box;" />
+                    </div>
+                    <button id="btnAplicarDescuentoPolla" type="button" class="btn-secundario" style="background: #ea580c; color: white; padding: 10px 14px; font-weight: 700;">🎁 Aplicar Descuento Polla Ganada</button>
+                </div>
             </div>
 
             <br>

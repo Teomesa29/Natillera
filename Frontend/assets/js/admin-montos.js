@@ -516,6 +516,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const btnReset = document.getElementById("btnResetSocio");
         const btnGuardarObs = document.getElementById("btnGuardarObs");
         const btnAplicarAjuste = document.getElementById("btnAplicarAjuste");
+        const btnAplicarDescuentoPolla = document.getElementById("btnAplicarDescuentoPolla");
 
         // Carga 100% paralela instantánea de la lista de usuarios y matriz general
         const [usuarios] = await Promise.all([
@@ -606,6 +607,42 @@ document.addEventListener("DOMContentLoaded", async () => {
                     mostrarMensaje(`❌ ${err.message}`, true);
                 } finally {
                     btnAplicarAjuste.disabled = false;
+                }
+        // ✅ Registrar Descuento por Polla Ganada
+        if (btnAplicarDescuentoPolla) {
+            btnAplicarDescuentoPolla.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const usuarioId = Number(select.value);
+                const inputMonto = document.getElementById("montoDescuentoPolla");
+                const montoVal = Number(inputMonto?.value || 0);
+
+                if (!montoVal || montoVal <= 0) {
+                    mostrarMensaje("Ingresa un monto válido mayor a 0 para el descuento por polla ganada", true);
+                    return;
+                }
+
+                btnAplicarDescuentoPolla.disabled = true;
+
+                try {
+                    const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_ajuste`, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            usuario_id: usuarioId,
+                            tipo: "Descuento por Polla",
+                            monto: -Math.abs(montoVal),
+                            descripcion: "Descuento por polla ganada"
+                        })
+                    });
+                    if (inputMonto) inputMonto.value = "";
+                    await Promise.all([
+                        cargarUsuario(usuarioId),
+                        cargarMatrizPagos()
+                    ]);
+                    mostrarMensaje(`✅ ${r?.mensaje || `Descuento por polla ganada (-$${montoVal.toLocaleString("es-CO")}) aplicado`}`, false);
+                } catch (err) {
+                    mostrarMensaje(`❌ ${err.message}`, true);
+                } finally {
+                    btnAplicarDescuentoPolla.disabled = false;
                 }
             });
         }
