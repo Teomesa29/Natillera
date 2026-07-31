@@ -67,12 +67,12 @@
             </form>
         </div>
 
-        <!-- Derecha: Cerdito Animado en Video MP4 -->
+        <!-- Derecha: Cerdito Animado en Video MP4 con Chroma Key HD (Fondo Verde Removido) -->
         <div class="info-box">
             <div class="piggy-badge-glow">
-                <video id="videoPiggy" class="floating-image piggy-video-hero" autoplay loop muted playsinline>
+                <canvas id="canvasPiggy" class="floating-image piggy-video-hero"></canvas>
+                <video id="videoPiggy" autoplay loop muted playsinline style="display: none;">
                     <source src="assets/images/Cerdito.mp4" type="video/mp4">
-                    Tu navegador no soporta reproducción de video.
                 </video>
             </div>
             <div class="info-text">

@@ -246,3 +246,61 @@ function animate() {
 }
 
 animate();
+
+// =========================================================================
+// CHROMA KEY ENGINE EN TIEMPO REAL (EXTRACCIÓN DE FONDO VERDE DE CERDITO.MP4)
+// =========================================================================
+(function initChromaKey() {
+    const video = document.getElementById('videoPiggy');
+    const canvasPiggy = document.getElementById('canvasPiggy');
+
+    if (!video || !canvasPiggy) return;
+
+    const ctxPiggy = canvasPiggy.getContext('2d', { willReadFrequently: true });
+
+    function processFrame() {
+        if (!video.paused && !video.ended) {
+            if (canvasPiggy.width !== video.videoWidth && video.videoWidth > 0) {
+                canvasPiggy.width = video.videoWidth;
+                canvasPiggy.height = video.videoHeight;
+            }
+
+            if (canvasPiggy.width > 0) {
+                ctxPiggy.drawImage(video, 0, 0, canvasPiggy.width, canvasPiggy.height);
+                const frame = ctxPiggy.getImageData(0, 0, canvasPiggy.width, canvasPiggy.height);
+                const data = frame.data;
+                const len = data.length / 4;
+
+                for (let i = 0; i < len; i++) {
+                    const r = data[i * 4 + 0];
+                    const g = data[i * 4 + 1];
+                    const b = data[i * 4 + 2];
+
+                    // Detección avanzada de tono verde de la pantalla cromática
+                    // Un píxel se considera verde si la componente verde es significativamente mayor que roja y azul
+                    if (g > 65 && g > r * 1.12 && g > b * 1.12) {
+                        data[i * 4 + 3] = 0; // Transparente 100%
+                    } else if (g > 55 && g > r * 1.04 && g > b * 1.04) {
+                        // Suavizado anti-aliasing (Feathering en los bordes del cerdito)
+                        const alphaRatio = 1 - ((g - (r + b) / 2) / 100);
+                        data[i * 4 + 3] = Math.max(0, Math.min(255, Math.floor(alphaRatio * 255)));
+                    }
+                }
+                ctxPiggy.putImageData(frame, 0, 0);
+            }
+        }
+        requestAnimationFrame(processFrame);
+    }
+
+    video.addEventListener('play', () => {
+        processFrame();
+    });
+
+    video.addEventListener('loadeddata', () => {
+        if (!video.paused) processFrame();
+    });
+
+    if (!video.paused) {
+        processFrame();
+    }
+})();
