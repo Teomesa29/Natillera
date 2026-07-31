@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de la Polla - Natillera</title>
+    <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+        .polla-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        @media (max-width: 768px) {
+            .polla-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .polla-list {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: var(--transition-pro);
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+        }
+        .polla-list:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+        .polla-list::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            opacity: 0.8;
+            background: var(--color-pollas);
+        }
+        .polla-list h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+        .polla-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .polla-item:last-child { border-bottom: none; }
+        .numero-polla {
+            font-weight: 800;
+            color: var(--color-pollas);
+            font-size: 1.6rem;
+            letter-spacing: -0.02em;
+        }
+        .ganador-badge {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-left: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-dashboard">
+            <h1>Estado de la Polla 🎲</h1>
+            <button onclick="window.location.href='dashboard.html'" class="btn-secundario">Volver al Dashboard</button>
+            <button id="btnCerrarSesion" class="btn-cerrar-sesion">Cerrar Sesión</button>
+        </div>
+
+        <div class="polla-grid">
+            <!-- Números de los socios -->
+            <div class="polla-list">
+                <h2>Números Asignados</h2>
+                <div id="listaSocios">Cargando...</div>
+            </div>
+
+            <!-- Historial de resultados -->
+            <div class="polla-list">
+                <h2>Historial de Lotería de Medellín</h2>
+                <div id="historialPolla">Cargando...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/polla.js"></script>
+</body>
+</html>

@@ -1,6 +1,9 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -16,12 +19,14 @@ if DATABASE_URL:
 
     connect_args = {}
 else:
-    DATABASE_URL = "sqlite:///./natillera.db"
-    connect_args = {"check_same_thread": False}
+    raise ValueError("¡Falta la variable de entorno DATABASE_URL! Asegúrate de tener el archivo .env configurado con la conexión a Neon.")
 
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=20,
+    pool_recycle=300,
     connect_args=connect_args,
 )
 

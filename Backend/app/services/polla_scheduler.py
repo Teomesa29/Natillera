@@ -19,12 +19,33 @@ def last_friday_of_month(year: int, month: int) -> date:
     return last_day - timedelta(days=offset)
 
 
+def get_most_recent_last_friday(today: date) -> date:
+    current_month_last_friday = last_friday_of_month(today.year, today.month)
+    
+    if today >= current_month_last_friday:
+        return current_month_last_friday
+    
+    if today.month == 1:
+        prev_year = today.year - 1
+        prev_month = 12
+    else:
+        prev_year = today.year
+        prev_month = today.month - 1
+        
+    return last_friday_of_month(prev_year, prev_month)
+
+
 def fetch_medellin_result(draw_date: date) -> dict:
     url = f"{API_EXTERNA}/{draw_date.isoformat()}"
     r = requests.get(url, timeout=20)
     r.raise_for_status()
 
-    data = r.json()
+    res_json = r.json()
+    if isinstance(res_json, dict):
+        data = res_json.get("data", [])
+    else:
+        data = res_json
+
     if not isinstance(data, list):
         raise RuntimeError("Respuesta inesperada de API externa")
 
@@ -41,16 +62,10 @@ def fetch_medellin_result(draw_date: date) -> dict:
     }
 
 
+
 def sync_medellin_if_last_friday(db: Session) -> dict:
     today = date.today()
-    draw_date = last_friday_of_month(today.year, today.month)
-
-    # Si todavía no ha llegado el último viernes
-    if today < draw_date:
-        return {
-            "ran": False,
-            "mensaje": f"Aún no es fecha de sorteo. Hoy={today} sorteo={draw_date}"
-        }
+    draw_date = get_most_recent_last_friday(today)
 
     # Verificar si ya existe
     exists = (

@@ -30,7 +30,12 @@ def fetch_medellin_result(draw_date: date) -> dict:
     url = f"{API_EXTERNA}/{draw_date.isoformat()}"
     r = requests.get(url, timeout=20)
     r.raise_for_status()
-    data = r.json()
+    res_json = r.json()
+
+    if isinstance(res_json, dict):
+        data = res_json.get("data", [])
+    else:
+        data = res_json
 
     if not isinstance(data, list):
         raise RuntimeError("Respuesta inesperada de API externa")
@@ -46,6 +51,7 @@ def fetch_medellin_result(draw_date: date) -> dict:
         "result": str(med.get("result") or ""),
         "series": str(med.get("series") or "") if med.get("series") is not None else None,
     }
+
 
 def get_or_fetch_last_result(db: Session) -> ResultadoLoteria | None:
     """
@@ -120,3 +126,18 @@ def estado_polla(usuario_id: int, db: Session = Depends(get_db)):
                     if gano
                     else f"Número ganador del mes pasado: {res2}. No ganaste.")
     }
+
+@router.get("/polla/historial")
+def historial_polla(db: Session = Depends(get_db)):
+    resultados = db.query(ResultadoLoteria).order_by(ResultadoLoteria.date.desc()).all()
+    return [
+        {
+            "id": r.id,
+            "lottery": r.lottery,
+            "date": r.date.isoformat(),
+            "result": r.result,
+            "series": r.series,
+            "ganador": str(r.result)[-2:].zfill(2) if r.result else ""
+        }
+        for r in resultados
+    ]

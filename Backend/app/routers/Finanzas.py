@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 import calendar
 import re
 
-from app.schemas.schemas import PrestamoCreate, AhorroCreate
+from app.schemas.schemas import PrestamoCreate, AhorroCreate, AporteMensualPayload, AjusteManualPayload
 from app.database import SessionLocal, get_db
 from app.models.models import Prestamo, Movimiento, Ahorro, Usuario
 
@@ -161,25 +161,39 @@ def obtener_o_crear_ahorro(db: Session, usuario_id: int) -> Ahorro:
 
 
 def siguiente_mes_texto_desde_movimientos(db: Session, usuario_id: int) -> str:
-    ultimo = (
+    movs = (
         db.query(Movimiento)
         .filter(Movimiento.usuario_id == usuario_id, Movimiento.tipo == "Aporte Mensual")
-        .order_by(Movimiento.id.desc())
-        .first()
+        .all()
     )
 
-    if not ultimo:
-        base = datetime.now()
-    else:
-        parsed = parse_mes_desde_descripcion(ultimo.descripcion or "")
-        if parsed:
-            mes_index, year = parsed
-            base = datetime(year, mes_index + 1, 1) + relativedelta(months=1)
-        else:
-            base = (ultimo.fecha or datetime.now()) + relativedelta(months=1)
+    now = datetime.now()
+    year_actual = now.year
 
-    mes = MESES_ES[base.month - 1]
-    return f"{mes} {base.year}"
+    if not movs:
+        return f"Enero {year_actual}"
+
+    max_mes_index = -1
+    max_year = year_actual
+
+    for mov in movs:
+        parsed = parse_mes_desde_descripcion(mov.descripcion or "")
+        if parsed:
+            mes_index, y = parsed
+            val = y * 12 + mes_index
+            current_max = max_year * 12 + max_mes_index
+            if val > current_max or max_mes_index == -1:
+                max_mes_index = mes_index
+                max_year = y
+
+    if max_mes_index == -1:
+        return f"Enero {year_actual}"
+
+    siguiente_mes_idx = (max_mes_index + 1) % 12
+    siguiente_year = max_year + ((max_mes_index + 1) // 12)
+
+    return f"{MESES_ES[siguiente_mes_idx]} {siguiente_year}"
+
 
 
 # =========================================================
@@ -245,7 +259,7 @@ def actualizar_config_ahorro(usuario_id: int, payload: AhorroCreate, db: Session
 
 
 @router.post("/ahorros/{usuario_id}/registrar_aporte")
-def registrar_aporte(usuario_id: int, db: Session = Depends(get_db)):
+def registrar_aporte(usuario_id: int, payload: AporteMensualPayload, db: Session = Depends(get_db)):
 
     validar_usuario(db, usuario_id)
     ahorro = obtener_o_crear_ahorro(db, usuario_id)
@@ -261,7 +275,7 @@ def registrar_aporte(usuario_id: int, db: Session = Depends(get_db)):
     ahorro.total_ahorrado = int((ahorro.total_ahorrado or 0) + aporte)
     ahorro.ultima_actualizacion = datetime.now()
 
-    mes_texto = siguiente_mes_texto_desde_movimientos(db, usuario_id)
+    mes_texto = f"{payload.mes} {payload.anio}"
 
     mov = Movimiento(
         usuario_id=usuario_id,
@@ -276,6 +290,87 @@ def registrar_aporte(usuario_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"mensaje": f"Aporte registrado ({mes_texto})"}
+
+@router.post("/ahorros/{usuario_id}/registrar_polla")
+def registrar_polla(usuario_id: int, payload: AporteMensualPayload, db: Session = Depends(get_db)):
+    validar_usuario(db, usuario_id)
+    
+    # Monto fijo de la polla: 10000 COP
+    monto_polla = 10000
+    mes_texto = f"{payload.mes} {payload.anio}"
+    
+    mov = Movimiento(
+        usuario_id=usuario_id,
+        tipo="Pago Polla",
+        monto=monto_polla,
+        fecha=datetime.now(),
+        categoria="ingreso",
+        descripcion=f"Pago de Polla registrado ({mes_texto})"
+    )
+    
+    db.add(mov)
+    db.commit()
+    
+    return {"mensaje": f"Pago de Polla registrado ({mes_texto})"}
+
+
+@router.post("/admin/modificar_pago_mes")
+def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
+    usuario_id = int(payload.get("usuario_id", 0))
+    mes_nombre = payload.get("mes")
+    anio = int(payload.get("anio", 2026))
+    tipo_pago = payload.get("tipo") # "aporte" o "polla"
+    accion = payload.get("accion") # "registrar" o "eliminar"
+
+    validar_usuario(db, usuario_id)
+    ahorro = obtener_o_crear_ahorro(db, usuario_id)
+
+    mes_desc_pattern = f"({mes_nombre} {anio})"
+
+    # Buscar movimientos existentes de ese tipo y mes
+    movs = db.query(Movimiento).filter(
+        Movimiento.usuario_id == usuario_id,
+        Movimiento.descripcion.like(f"%{mes_desc_pattern}%")
+    ).all()
+
+    mov_encontrado = None
+    for m in movs:
+        if tipo_pago == "aporte" and "aporte" in (m.tipo or "").lower():
+            mov_encontrado = m
+            break
+        elif tipo_pago == "polla" and "polla" in (m.tipo or "").lower():
+            mov_encontrado = m
+            break
+
+    if accion == "eliminar":
+        if mov_encontrado:
+            if tipo_pago == "aporte":
+                ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) - mov_encontrado.monto))
+            db.delete(mov_encontrado)
+            db.commit()
+            return {"mensaje": f"Pago de {tipo_pago} de {mes_nombre} eliminado"}
+        return {"mensaje": "No se encontró pago previo para eliminar"}
+    else: # registrar
+        if not mov_encontrado:
+            monto = int(ahorro.ahorro_mensual or 0) if tipo_pago == "aporte" else 10000
+            if tipo_pago == "aporte":
+                ahorro.total_ahorrado = int((ahorro.total_ahorrado or 0) + monto)
+            
+            tipo_mov = "Aporte Mensual" if tipo_pago == "aporte" else "Pago Polla"
+            desc = f"Aporte mensual registrado ({mes_nombre} {anio})" if tipo_pago == "aporte" else f"Pago de Polla registrado ({mes_nombre} {anio})"
+            
+            mov = Movimiento(
+                usuario_id=usuario_id,
+                tipo=tipo_mov,
+                monto=monto,
+                fecha=datetime.now(),
+                categoria="ingreso",
+                descripcion=desc
+            )
+            db.add(mov)
+            db.commit()
+            return {"mensaje": f"Pago de {tipo_pago} de {mes_nombre} registrado"}
+        return {"mensaje": "El pago ya estaba registrado"}
 
 
 # =========================================================
@@ -366,3 +461,110 @@ def resetear_usuario(usuario_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"mensaje": f"Usuario reseteado: {user.usuario} (rol: {user.rol})"}
+
+
+# =========================================================
+# AJUSTES Y DESCUENTOS MANUALES
+# =========================================================
+@router.post("/ahorros/{usuario_id}/registrar_ajuste")
+def registrar_ajuste_manual(usuario_id: int, payload: AjusteManualPayload, db: Session = Depends(get_db)):
+    validar_usuario(db, usuario_id)
+    ahorro = obtener_o_crear_ahorro(db, usuario_id)
+
+    monto = int(payload.monto)
+    nuevo_total = int((ahorro.total_ahorrado or 0) + monto)
+    if nuevo_total < 0:
+        nuevo_total = 0
+    ahorro.total_ahorrado = nuevo_total
+    ahorro.ultima_actualizacion = datetime.now()
+
+    categoria = "egreso" if monto < 0 else "ingreso"
+    tipo = payload.tipo or ("Descuento Ahorro" if monto < 0 else "Abono Ahorro")
+    descripcion = payload.descripcion or f"Ajuste manual ({'descuento' if monto < 0 else 'abono'})"
+
+    mov = Movimiento(
+        usuario_id=usuario_id,
+        tipo=tipo,
+        monto=monto,
+        fecha=datetime.now(),
+        categoria=categoria,
+        descripcion=descripcion
+    )
+
+    db.add(mov)
+    db.commit()
+
+    return {"mensaje": f"Ajuste registrado correctamente ({tipo})"}
+
+
+# =========================================================
+# MATRIZ GENERAL DE PAGOS POR MESES (ADMIN)
+# =========================================================
+@router.get("/admin/matriz_pagos")
+def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
+    usuarios = db.query(Usuario).order_by(Usuario.nombre.asc()).all()
+    ahorros_map = {a.usuario_id: a for a in db.query(Ahorro).all()}
+    movimientos_todos = db.query(Movimiento).all()
+
+    movs_por_usuario = {}
+    for m in movimientos_todos:
+        movs_por_usuario.setdefault(m.usuario_id, []).append(m)
+
+    matriz = []
+    totales_por_mes = {m: 0 for m in range(12)}
+    gran_total_acumulado = 0
+
+    for u in usuarios:
+        ahorro = ahorros_map.get(u.id)
+        movs = movs_por_usuario.get(u.id, [])
+
+        pagos_meses = {}
+        for m in range(12):
+            pagos_meses[m] = {
+                "aporte": False,
+                "monto_aporte": 0,
+                "polla": False,
+                "monto_polla": 0,
+                "total_mes": 0
+            }
+
+        for mov in movs:
+            parsed = parse_mes_desde_descripcion(mov.descripcion or "")
+            if parsed:
+                mes_idx, y = parsed
+                if y == anio and 0 <= mes_idx <= 11:
+                    tipo_lower = (mov.tipo or "").lower()
+                    if "aporte" in tipo_lower:
+                        pagos_meses[mes_idx]["aporte"] = True
+                        pagos_meses[mes_idx]["monto_aporte"] += int(mov.monto or 0)
+                        pagos_meses[mes_idx]["total_mes"] += int(mov.monto or 0)
+                    elif "polla" in tipo_lower:
+                        pagos_meses[mes_idx]["polla"] = True
+                        pagos_meses[mes_idx]["monto_polla"] += int(mov.monto or 0)
+
+        for m_idx in range(12):
+            totales_por_mes[m_idx] += pagos_meses[m_idx]["total_mes"]
+
+        total_usuario = int(ahorro.total_ahorrado) if (ahorro and ahorro.total_ahorrado) else 0
+        gran_total_acumulado += total_usuario
+
+        matriz.append({
+            "usuario_id": u.id,
+            "nombre": u.nombre,
+            "usuario": u.usuario,
+            "telefono": u.telefono,
+            "polla_numero": u.polla,
+            "ahorro_mensual": ahorro.ahorro_mensual if ahorro else 0,
+            "pagos_meses": pagos_meses,
+            "total_ahorrado": total_usuario,
+            "observaciones": u.observaciones
+        })
+
+    return {
+        "anio": anio,
+        "meses": MESES_ES,
+        "usuarios": matriz,
+        "totales_por_mes": [totales_por_mes[i] for i in range(12)],
+        "gran_total_acumulado": gran_total_acumulado
+    }
+

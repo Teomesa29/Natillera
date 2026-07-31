@@ -16,6 +16,7 @@ class Usuario(Base):
     activo = Column(Boolean, default=True)
     fecha_registro = Column(DateTime, default=datetime.now)
     rol = Column(String, nullable=False)
+    observaciones = Column(String, nullable=True)
 
     # Relaciones
     ahorros = relationship("Ahorro", back_populates="usuario_rel")

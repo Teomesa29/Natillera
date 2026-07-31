@@ -4,74 +4,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Natillera familiar</title>
+    <title>Dashboard Natillera</title>
     <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <div class="container">
         <div class="header-dashboard">
             <h1>Esta es la información que tengo disponible para ti en este momento sobre la natillera!</h1>
-            <button id="btnAdminMontos" class="btn-secundario" style="display:none;">Agregar pagos</button>
+            <button id="btnAdminMontos" class="btn-secundario" style="display:none;">Administración de Pagos</button>
             <button id="btnAdminPrestamo" class="btn-secundario" style="display:none;">Gestionar préstamos</button>
+            <button id="btnEstadoPolla" class="btn-secundario">Estado Polla</button>
             <button id="btnCrearUsuarios" class="btn-secundario" style="display:none;">Crear usuarios</button>
             <button id="btnCerrarSesion" class="btn-cerrar-sesion">Cerrar Sesión</button>
         </div>
 
+        <div id="seccionObservaciones" class="tarjeta" style="display:none; margin-bottom: 20px; border-left: 6px solid #6366f1; background: #f8fafc; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.08);">
+            <h2 style="color: #4f46e5; margin-bottom: 10px; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+                📌 Nota de la Administración
+            </h2>
+            <p id="textoObservaciones" style="font-size: 1rem; color: #334155; line-height: 1.6; white-space: pre-wrap; font-weight: 500;"></p>
+        </div>
+
         <div class="tarjetas-wrapper">
+            <!-- Fila 1: Tarjetas Principales -->
+            <!-- 1. Cuota Ahorro -->
             <section class="tarjeta" id="ahorro">
                 <header>
-                    <h2>Recuerda que estás ahorrando:</h2>
+                    <h2>Ahorro Mensual Acordado</h2>
                 </header>
                 <div class="valor">
-                    <p>Consulta a la base de datos</p>
+                    <p>--</p>
                 </div>
             </section>
 
+            <!-- 2. Mis Ahorros -->
             <section class="tarjeta" id="mis_ahorros">
                 <header>
-                    <h2>Actualmente tienes ahorrado:</h2>
+                    <h2>Mi Ahorro Acumulado</h2>
                 </header>
                 <div class="valor">
-                    <p>Consulta a la base de datos</p>
+                    <p>--</p>
                 </div>
             </section>
 
-            <section class="tarjeta" id="interes">
+            <!-- 3. Fondo Total Natillera -->
+            <section class="tarjeta" id="fondo_total_natillera" style="border-top: 4px solid #10b981;">
                 <header>
-                    <h2>Con el dinero que estás ahorrando tienes en intereses un:</h2>
+                    <h2>💰 Fondo Total Natillera</h2>
                 </header>
                 <div class="valor">
-                    <p>Consulta a la base de datos</p>
+                    <p>--</p>
+                    <span class="sub-label">Acumulado general natillera</span>
                 </div>
             </section>
 
+            <!-- 4. Socios Activos -->
             <section class="tarjeta" id="socios">
                 <header>
-                    <h2>Estos son los socios actuales:</h2>
+                    <h2>Socios Activos</h2>
                 </header>
                 <div class="valor">
-                    <p>Consulta a la base de datos</p>
+                    <p>--</p>
                 </div>
             </section>
 
+            <!-- Fila 2: Finanzas, Polla, Estado y Cuenta Regresiva -->
+            <!-- 5. Préstamos -->
             <section class="tarjeta" id="Prestamos">
                 <header>
-                    <h2>Actualmente tienes prestado:</h2>
+                    <h2>Total Prestado Activo</h2>
                 </header>
                 <div class="valor">
-                    <p>Consulta a la base de datos</p>
-                    <button id="btnInfoPrestamo" class="btn-primary">Más información sobre el préstamo</button>
+                    <p>--</p>
+                    <button id="btnInfoPrestamo" class="btn-primary" style="margin-top: 6px; width: 100%; font-size: 0.8rem; padding: 6px 10px;">Ver préstamos</button>
                 </div>
             </section>
 
+            <!-- 6. Mi Polla y Pozo Acumulado -->
             <section class="tarjeta" id="Pollas">
                 <header>
-                    <h2>Cada mes se jugará una polla por valor de $100.000, tu número es</h2>
+                    <h2>Mi Polla / Pozo Acumulado</h2>
                 </header>
                 <div class="valor">
-                    <p>Consulta a la base de datos</p>
+                    <p>--</p>
+                    <span class="sub-label" id="lblPozoPolla">Pozo acumulado: --</span>
+                </div>
+            </section>
+
+            <!-- 7. Pie Chart KPI Aportes -->
+            <section class="tarjeta" id="kpiAportesPie" style="border-top: 4px solid #6366f1;">
+                <header>
+                    <h2>💰 Cumplimiento Ahorro</h2>
+                </header>
+                <div class="valor" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 75px; height: 75px; flex-shrink: 0; position: relative;">
+                        <canvas id="dashPieAportesCanvas" width="75" height="75"></canvas>
+                    </div>
+                    <div>
+                        <div id="aporteStatusLabel" style="font-size: 1.15rem; font-weight: 800; color: #4f46e5;">0 de 12 meses</div>
+                        <span id="aporteStatusPct" class="sub-label" style="font-size: 0.9rem;">0% pagado</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Pie Chart KPI Polla -->
+            <section class="tarjeta" id="kpiPollaPie" style="border-top: 4px solid #ec4899;">
+                <header>
+                    <h2>🎲 Cumplimiento Polla</h2>
+                </header>
+                <div class="valor" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 75px; height: 75px; flex-shrink: 0; position: relative;">
+                        <canvas id="dashPiePollaCanvas" width="75" height="75"></canvas>
+                    </div>
+                    <div>
+                        <div id="pollaStatusLabel" style="font-size: 1.15rem; font-weight: 800; color: #ec4899;">0 de 12 meses</div>
+                        <span id="pollaStatusPct" class="sub-label" style="font-size: 0.9rem;">0% pagado</span>
+                    </div>
                 </div>
             </section>
         </div>

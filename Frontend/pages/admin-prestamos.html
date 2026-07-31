@@ -23,21 +23,24 @@
         </div>
 
         <section class="tarjeta">
-            <h2>Crear préstamo</h2>
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+                <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin: 0;">➕ Crear Nuevo Préstamo</h2>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Selecciona el socio y especifica las condiciones del crédito (monto, interés y plazo).</p>
+            </div>
 
             <div class="admin-grid">
                 <div class="form-group">
-                    <label for="selectUsuario">Socio</label>
+                    <label for="selectUsuario">Socio Prestamista</label>
                     <select id="selectUsuario"></select>
                 </div>
 
                 <div class="form-group">
-                    <label for="monto">Monto (COP)</label>
+                    <label for="monto">Monto Prestado (COP)</label>
                     <input id="monto" type="number" min="0" step="1000" placeholder="Ej: 500000" />
                 </div>
 
                 <div class="form-group">
-                    <label for="interes">Interés mensual (%)</label>
+                    <label for="interes">Interés Mensual (%)</label>
                     <input id="interes" type="number" min="0" step="0.1" placeholder="Ej: 3" />
                 </div>
 
@@ -47,9 +50,13 @@
                 </div>
             </div>
 
-            <div class="acciones">
-                <button id="btnCrearPrestamo" type="button" class="btn-admin">Crear préstamo</button>
-                <button id="btnVerPrestamos" type="button" class="btn-secundario">Ver préstamos del socio</button>
+            <div class="acciones" style="margin-top: 25px; display: flex; gap: 15px; flex-wrap: wrap;">
+                <button id="btnCrearPrestamo" type="button" class="btn-primary" style="margin-top:0;">
+                    💵 Otorgar y Crear Préstamo
+                </button>
+                <button id="btnVerPrestamos" type="button" class="btn-secundario">
+                    🔍 Ver Préstamos del Socio
+                </button>
             </div>
 
             <div class="mensaje" id="mensaje"></div>

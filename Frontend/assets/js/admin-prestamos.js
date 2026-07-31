@@ -1,4 +1,4 @@
-const API = localStorage.getItem("API_BASE") || "http://127.0.0.1:8000";
+const API = window.API_BASE || localStorage.getItem("API_BASE") || "http://127.0.0.1:8000";
 
 function authHeaders() {
     const token = localStorage.getItem("access_token");
@@ -114,7 +114,7 @@ async function cargarUsuarios() {
     usuarios.forEach(u => {
         const opt = document.createElement("option");
         opt.value = String(u.id);
-        opt.textContent = `${u.nombre} (@${u.usuario}) - ${u.rol}`;
+        opt.textContent = u.nombre;
         select.appendChild(opt);
     });
 

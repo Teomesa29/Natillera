@@ -9,6 +9,10 @@ class UsuarioBase(BaseModel):
     telefono: str
     polla: int
     email: Optional[str] = None
+    observaciones: Optional[str] = None
+
+class UsuarioObservacionesUpdate(BaseModel):
+    observaciones: Optional[str] = None
 
 class UsuarioCreate(UsuarioBase):
     password: str
@@ -19,6 +23,11 @@ class UsuarioCreate(UsuarioBase):
 class UsuarioLogin(BaseModel):
     usuario: str
     password: str
+
+class RecuperarPassword(BaseModel):
+    email: str
+    celular: str
+    nueva_password: str
 
 class UsuarioResponse(UsuarioBase):
     id: int
@@ -37,6 +46,16 @@ class AhorroCreate(BaseModel):
     usuario_id: int
     ahorro_mensual: int
     porcentaje_interes: float = 5  
+
+class AporteMensualPayload(BaseModel):
+    mes: str
+    anio: int
+
+class AjusteManualPayload(BaseModel):
+    usuario_id: int
+    tipo: str
+    monto: int
+    descripcion: Optional[str] = None
 
 class PrestamoCreate(BaseModel):
     usuario_id: int

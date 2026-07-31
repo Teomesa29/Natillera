@@ -18,7 +18,15 @@ app = FastAPI(title="API Natillera")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3000",
+    ],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:[0-9]+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -83,13 +91,13 @@ scheduler.add_job(
 def start_scheduler():
     if not scheduler.running:
         scheduler.start()
-        print("✅ Scheduler iniciado correctamente")
+        print("Scheduler iniciado correctamente")
 
 
 @app.on_event("shutdown")
 def shutdown_scheduler():
     scheduler.shutdown()
-    print("🛑 Scheduler detenido")
+    print("Scheduler detenido")
 
 
 @app.api_route("/health", methods=["GET", "HEAD"])

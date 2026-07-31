@@ -8,6 +8,7 @@
     <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../assets/css/styles.css" />
     <link rel="stylesheet" href="../assets/css/admin-montos.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -22,6 +23,18 @@
             </div>
         </div>
 
+        <!-- KPI Fondo Total Natillera -->
+        <section class="tarjeta" style="margin-bottom: 25px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; border-radius: 16px; padding: 20px 25px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h2 style="color: rgba(255,255,255,0.95); font-size: 1.05rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">💰 Fondo Total Natillera (Gran Acumulado General)</h2>
+                    <p style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 4px;">Suma total ahorrada por todos los socios para entregar a fin de año</p>
+                </div>
+                <div id="kpiFondoGlobalAdmin" style="font-size: 2.1rem; font-weight: 800; color: #ffffff;">$0 COP</div>
+            </div>
+        </section>
+
+
         <section class="tarjeta">
             <h2>Selecciona un socio</h2>
 
@@ -33,56 +46,139 @@
 
                 <div class="form-group">
                     <label for="aporteMensual">Aporte mensual (COP)</label>
-                    <input id="aporteMensual" type="number" min="0" step="1000" placeholder="Ej: 150000" />
+                    <input id="aporteMensual" type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Ej: 150000" />
                 </div>
 
                 <div class="form-group">
-                    <label for="tasaMensual">Interés mensual (%)</label>
-                    <input id="tasaMensual" type="number" min="0" step="0.1" placeholder="Ej: 1" />
-                    <p class="ayuda">Ejemplo: 1% mensual (pon 1).</p>
-                </div>
-
-                <div class="form-group">
-                    <label for="selectMesAporte">Mes del aporte</label>
+                    <label for="selectMesAporte">Próximo mes Aporte</label>
                     <select id="selectMesAporte"></select>
-                    <p class="ayuda">Selecciona el mes que deseas registrar.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectMesPolla">Mes cuota/polla a pagar</label>
+                    <select id="selectMesPolla"></select>
                 </div>
             </div>
 
             <br>
-
-            <div class="acciones">
-                <button id="btnGuardarConfig" type="button" class="btn-admin">Guardar configuración</button>
-                <button id="btnRegistrarAporte" type="button" class="btn-secundario">Registrar aporte</button>
+            <div class="acciones" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="btnGuardarConfig" type="button" class="btn-admin">Guardar aporte base</button>
+                <button id="btnRegistrarAporte" type="button" class="btn-secundario">Registrar Aporte Mensual</button>
+                <button id="btnRegistrarPolla" type="button" class="btn-secundario" style="background-color: var(--color-pollas); color: white;">Registrar Pago de Polla</button>
                 <button id="btnResetSocio" type="button" class="btn-peligro">Resetear socio</button>
             </div>
 
             <div class="mensaje" id="mensaje"></div>
         </section>
 
-        <section class="tarjeta">
-            <h2>Vista previa (cálculo automático)</h2>
-
-            <div class="resumen-grid">
-                <div class="resumen-item">
-                    <span class="resumen-label">Total aportado</span>
-                    <span class="resumen-valor" id="previewTotalAportado">$0 COP</span>
+        <!-- Gráficos y Hábito de Pago de Socios -->
+        <section class="tarjeta" style="margin-top: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin: 0;">📅 Hábito de Pago y Cumplimiento</h2>
+                    <p class="ayuda" style="margin-top: 4px;">Monitoreo interactivo del comportamiento de pago mensual por cada socio.</p>
                 </div>
-
-                <div class="resumen-item">
-                    <span class="resumen-label">Total ahorrado (con interés)</span>
-                    <span class="resumen-valor" id="previewTotalAhorrado">$0 COP</span>
-                </div>
-
-                <div class="resumen-item">
-                    <span class="resumen-label">Intereses ganados</span>
-                    <span class="resumen-valor" id="previewIntereses">$0 COP</span>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; background: #f8fafc; padding: 10px 18px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 0.85rem; font-weight: 600;">
+                    <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #10b981; border-radius: 3px; display: inline-block;"></span> Al día (Aporte y Polla)</span>
+                    <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #3b82f6; border-radius: 3px; display: inline-block;"></span> Solo Aporte</span>
+                    <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #ec4899; border-radius: 3px; display: inline-block;"></span> Solo Polla</span>
+                    <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #e2e8f0; border-radius: 3px; display: inline-block;"></span> Pendiente / En mora</span>
                 </div>
             </div>
 
-            <p class="ayuda">
-                Nota: este cálculo es una simulación mensual: <strong>(saldo + aporte) * (1 + interés)</strong>.
-            </p>
+            <!-- Resumen de Mini Pie Charts Informáticos -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                    <div style="width: 90px; height: 90px; flex-shrink: 0; position: relative;">
+                        <canvas id="miniPieAportesCanvas" width="90" height="90"></canvas>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text-main);">Cumplimiento Aportes</h4>
+                        <div id="miniPieAportesTexto" style="font-size: 1.2rem; font-weight: 800; color: #4f46e5;">0%</div>
+                        <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: var(--text-muted);" id="miniPieAportesSub">0 de 0 pagos globales</p>
+                    </div>
+                </div>
+
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+                    <div style="width: 90px; height: 90px; flex-shrink: 0; position: relative;">
+                        <canvas id="miniPiePollasCanvas" width="90" height="90"></canvas>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text-main);">Cumplimiento Pollas</h4>
+                        <div id="miniPiePollasTexto" style="font-size: 1.2rem; font-weight: 800; color: #ec4899;">0%</div>
+                        <p style="margin: 2px 0 0 0; font-size: 0.8rem; color: var(--text-muted);" id="miniPiePollasSub">0 de 0 pagos globales</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Hábito de Pago por Socio -->
+            <div style="overflow-x: auto; max-width: 100%; border-radius: 16px; border: 1px solid #e2e8f0;">
+                <table id="tablaHabitoPagos" style="width: 100%; border-collapse: collapse; min-width: 1000px; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: #94a3b8; color: white; text-transform: uppercase; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px;">
+                            <th style="padding: 12px 14px; text-align: left; position: sticky; left: 0; background: #64748b; z-index: 2; color: white; min-width: 180px;">SOCIO</th>
+                            <th style="padding: 12px 6px; text-align: center;">ENE</th>
+                            <th style="padding: 12px 6px; text-align: center;">FEB</th>
+                            <th style="padding: 12px 6px; text-align: center;">MAR</th>
+                            <th style="padding: 12px 6px; text-align: center;">ABR</th>
+                            <th style="padding: 12px 6px; text-align: center;">MAY</th>
+                            <th style="padding: 12px 6px; text-align: center;">JUN</th>
+                            <th style="padding: 12px 6px; text-align: center;">JUL</th>
+                            <th style="padding: 12px 6px; text-align: center;">AGO</th>
+                            <th style="padding: 12px 6px; text-align: center;">SEP</th>
+                            <th style="padding: 12px 6px; text-align: center;">OCT</th>
+                            <th style="padding: 12px 6px; text-align: center;">NOV</th>
+                            <th style="padding: 12px 6px; text-align: center;">DIC</th>
+                            <th style="padding: 12px 14px; text-align: right; background: #64748b; color: white;">TOTAL AHORRADO</th>
+                            <th style="padding: 12px 14px; text-align: center; background: #64748b; color: white;">RECORDAR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyHabitoPagos">
+                        <!-- Se llena dinámicamente con JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Matriz General de Pagos (Original con emojis y totales) -->
+        <section class="tarjeta" style="margin-top: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin: 0;">📊 Matriz General de Pagos (Todos los Socios)</h2>
+                    <p class="ayuda" style="margin-top: 4px;">Vista detallada por mes (Aporte y Polla) de cada socio en la natillera.</p>
+                </div>
+                <div style="font-weight: 700; color: #4f46e5; background: #e0e7ff; padding: 6px 16px; border-radius: 999px; font-size: 0.9rem;">
+                    Leyenda: 🟢 Aporte | 🎲 Polla | ❌ Pendiente
+                </div>
+            </div>
+
+            <div style="overflow-x: auto; max-width: 100%; border-radius: 16px; border: 1px solid #e2e8f0;">
+                <table id="tablaMatrizPagos" style="width: 100%; border-collapse: collapse; min-width: 1100px; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: #f1f5f9; color: var(--text-main); text-transform: uppercase; font-weight: 800; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 14px 12px; text-align: left; position: sticky; left: 0; background: #f1f5f9; z-index: 2;">Socio</th>
+                            <th style="padding: 14px 8px; text-align: center;">Ene</th>
+                            <th style="padding: 14px 8px; text-align: center;">Feb</th>
+                            <th style="padding: 14px 8px; text-align: center;">Mar</th>
+                            <th style="padding: 14px 8px; text-align: center;">Abr</th>
+                            <th style="padding: 14px 8px; text-align: center;">May</th>
+                            <th style="padding: 14px 8px; text-align: center;">Jun</th>
+                            <th style="padding: 14px 8px; text-align: center;">Jul</th>
+                            <th style="padding: 14px 8px; text-align: center;">Ago</th>
+                            <th style="padding: 14px 8px; text-align: center;">Sep</th>
+                            <th style="padding: 14px 8px; text-align: center;">Oct</th>
+                            <th style="padding: 14px 8px; text-align: center;">Nov</th>
+                            <th style="padding: 14px 8px; text-align: center;">Dic</th>
+                            <th style="padding: 14px 12px; text-align: right; background: #f1f5f9;">Total Ahorrado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyMatrizPagos">
+                        <!-- Se llena dinámicamente con JS -->
+                    </tbody>
+                    <tfoot id="footMatrizPagos" style="background: #f8fafc; font-weight: 800; border-top: 2px solid #cbd5e1;">
+                    </tfoot>
+                </table>
+            </div>
         </section>
 
         <section class="tarjeta">
@@ -100,6 +196,37 @@
         <footer>
             <p>Hecho por Mateo Restrepo</p>
         </footer>
+    </div>
+
+    <!-- Modal Elegante para Gestión de Pagos Mensuales -->
+    <div id="modalPagoMes" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s ease;">
+        <div style="background: white; border-radius: 20px; max-width: 440px; width: 100%; padding: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">⚙️</div>
+                    <div>
+                        <h3 id="modalPagoMesTitulo" style="margin: 0; font-size: 1.1rem; color: #0f172a; font-weight: 700;">Modificar Pagos</h3>
+                        <p id="modalPagoMesSub" style="margin: 2px 0 0 0; font-size: 0.85rem; color: #64748b;">Selecciona una acción</p>
+                    </div>
+                </div>
+                <button onclick="cerrarModalPagoMes()" style="background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: #64748b; font-weight: 700; font-size: 1.1rem;">✕</button>
+            </div>
+
+            <div style="display: grid; gap: 10px; margin-top: 20px;">
+                <button onclick="ejecutarAccionPagoMes('aporte', 'registrar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; color: #0f172a; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#ecfdf5'; this.style.borderColor='#10b981'; this.style.color='#059669';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.color='#0f172a';">
+                    <span>🟢 Registrar Aporte Mensual</span>
+                    <span style="font-size: 1.1rem;">→</span>
+                </button>
+                <button onclick="ejecutarAccionPagoMes('polla', 'registrar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; color: #0f172a; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#fce7f3'; this.style.borderColor='#ec4899'; this.style.color='#be185d';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.color='#0f172a';">
+                    <span>🎲 Registrar Pago de Polla</span>
+                    <span style="font-size: 1.1rem;">→</span>
+                </button>
+                <button onclick="ejecutarAccionPagoMes('aporte', 'eliminar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #ffe4e6; background: #fff1f2; font-weight: 600; color: #e11d48; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#ffe4e6';" onmouseout="this.style.background='#fff1f2';">
+                    <span>🗑️ Eliminar Registro de Aporte</span>
+                    <span style="font-size: 1.1rem;">✕</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <script src="../assets/js/admin-montos.js"></script>

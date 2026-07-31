@@ -6,76 +6,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Crear usuarios - Natillera</title>
     <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../assets/css/styles.css" />
     <link rel="stylesheet" href="../assets/css/crear-usuarios.css">
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" style="max-width: 800px; margin: 0 auto;">
         <div class="header-dashboard">
-            <h1>👤 Crear usuarios</h1>
-            <div class="barra-dashboard">
-                <button class="btn-barra" onclick="window.location.href='dashboard.html'">← Volver</button>
-                <button id="btnCerrarSesion" class="btn-barra btn-salir"
-                    onclick="window.location.href='index.html'">Cerrar sesión</button>
+            <h1 style="font-size: 2.2rem; margin-bottom: 0;">👤 Registrar Nuevo Socio</h1>
+            <div class="header-buttons">
+                <button type="button" class="btn-volver" onclick="window.location.href='dashboard.html'">← Volver</button>
+                <button type="button" id="btnCerrarSesion" class="btn-cerrar-sesion" onclick="window.location.href='index.html'">Cerrar sesión</button>
             </div>
         </div>
 
-        <div id="mensaje" class="mensaje" style="margin-top:12px;"></div>
+        <div id="mensaje" class="mensaje"></div>
 
-        <section class="tarjeta">
+        <section class="tarjeta" style="margin-top: 25px;">
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+                <h2 style="color: var(--text-main); font-size: 1.3rem; font-weight: 700; margin: 0;">Información del Socio y Configuración Inicial</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Completa los datos para dar de alta un nuevo participante en la natillera.</p>
+            </div>
+
             <form id="formCrearUsuario" class="form-admin">
-                <div class="form-row">
-                    <label>Usuario</label>
-                    <input id="usuario" required />
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="usuario">Nombre de Usuario (Login)</label>
+                        <input id="usuario" placeholder="Ej: mateo" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo</label>
+                        <input id="nombre" placeholder="Ej: Mateo Restrepo" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono / Celular</label>
+                        <input id="telefono" placeholder="Ej: 3001234567" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="polla">Número de Polla Asignado</label>
+                        <input id="polla" type="number" placeholder="Ej: 15" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico</label>
+                        <input id="email" type="email" placeholder="correo@ejemplo.com" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rol">Rol de Cuenta</label>
+                        <select id="rol" required>
+                            <option value="socio">👤 Socio</option>
+                            <option value="admin">👑 Administrador</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ahorro_mensual">Ahorro Mensual Acordado (COP)</label>
+                        <input id="ahorro_mensual" type="number" min="0" value="150000" placeholder="Ej: 150000" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="porcentaje_interes">Tasa de Interés (%)</label>
+                        <input id="porcentaje_interes" type="number" min="0" step="0.1" value="5" required />
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="password">Contraseña Inicial</label>
+                        <input id="password" type="password" placeholder="Mínimo 4 caracteres" required />
+                    </div>
                 </div>
 
-                <div class="form-row">
-                    <label>Nombre</label>
-                    <input id="nombre" required />
+                <div style="margin-top: 25px; display: flex; justify-content: flex-end;">
+                    <button class="btn-primary" type="submit" style="width: 100%; font-size: 1.05rem;">
+                        ✨ Crear y Registrar Usuario
+                    </button>
                 </div>
-
-                <div class="form-row">
-                    <label>Teléfono</label>
-                    <input id="telefono" />
-                </div>
-
-                <div class="form-row">
-                    <label>Número de polla</label>
-                    <input id="polla" />
-                </div>
-
-                <div class="form-row">
-                    <label>Email</label>
-                    <input id="email" type="email" />
-                </div>
-
-                <div class="form-row">
-                    <label>Rol</label>
-                    <select id="rol" required>
-                        <option value="socio">socio</option>
-                        <option value="admin">admin</option>
-                    </select>
-                </div>
-
-                <hr style="margin:14px 0; opacity:.2">
-
-                <div class="form-row">
-                    <label>Ahorro mensual (COP)</label>
-                    <input id="ahorro_mensual" type="number" min="0" value="0" required />
-                </div>
-
-                <div class="form-row">
-                    <label>Interés anual (%)</label>
-                    <input id="porcentaje_interes" type="number" min="0" step="0.1" value="5" required />
-                </div>
-
-                <div class="form-row">
-                    <label>Contraseña</label>
-                    <input id="password" type="password" required />
-                </div>
-
-                <button class="btn-barra" type="submit" style="margin-top:10px;">Crear usuario</button>
             </form>
+        </section>
+
+        <!-- Lista de Usuarios Registrados con opción de Eliminar -->
+        <section class="tarjeta" style="margin-top: 30px;">
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+                <h2 style="color: var(--text-main); font-size: 1.3rem; font-weight: 700; margin: 0;">👥 Socios Registrados en el Sistema</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">Administra o elimina socios existentes de la natillera.</p>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: #f1f5f9; text-align: left; font-weight: 700; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 12px;">Socio</th>
+                            <th style="padding: 12px;">Usuario</th>
+                            <th style="padding: 12px;">Teléfono</th>
+                            <th style="padding: 12px;">Polla #</th>
+                            <th style="padding: 12px;">Rol</th>
+                            <th style="padding: 12px; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyListaUsuarios">
+                        <!-- Se puebla con JS -->
+                    </tbody>
+                </table>
+            </div>
         </section>
     </div>
 

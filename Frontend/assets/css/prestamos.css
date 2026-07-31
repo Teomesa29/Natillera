@@ -1,33 +1,35 @@
-/* Estilos específicos para la página de préstamos */
+/* Estilos Ultra Premium para Préstamos */
 
 .header-buttons {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .btn-volver {
-    background: linear-gradient(135deg, var(--color-ahorro) 0%, var(--color-socios) 100%);
-    color: white;
-    border: none;
+    background: white;
+    color: var(--text-main);
+    border: 1px solid rgba(0,0,0,0.1);
     padding: 12px 24px;
-    border-radius: 12px;
-    font-family: 'Poppins', sans-serif;
+    border-radius: 14px;
     font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition-pro);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     white-space: nowrap;
 }
 
 .btn-volver:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(9, 132, 227, 0.3);
+    background: #f8fafc;
+    border-color: rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.06);
 }
 
-/* Préstamo principal */
 .prestamo-principal {
-    border-top-color: var(--color-prestamos);
-    background: linear-gradient(135deg, rgba(214, 48, 49, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-top: 4px solid var(--color-prestamos) !important;
 }
 
 .prestamo-header {
@@ -38,52 +40,63 @@
 }
 
 .estado-badge {
-    background: linear-gradient(135deg, var(--color-mis-ahorros) 0%, var(--color-socios) 100%);
-    color: white;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-prestamos);
     padding: 8px 20px;
     border-radius: 20px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
 }
-
 .estado-badge.pagado {
-    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-mis-ahorros);
 }
 
 .prestamo-monto {
     text-align: center;
-    padding: 30px;
-    background: rgba(0, 0, 0, 0.02);
-    border-radius: 15px;
+    padding: 40px;
+    background: rgba(239, 68, 68, 0.03);
+    border-radius: 20px;
     margin-bottom: 25px;
+    border: 1px dashed rgba(239, 68, 68, 0.2);
 }
 
 .prestamo-monto .label {
     color: var(--text-muted);
     font-size: 1rem;
+    font-weight: 600;
     margin-bottom: 10px;
 }
 
 .valor-grande {
-    font-size: 3rem;
-    font-weight: 700;
+    font-size: 3.5rem;
+    font-weight: 800;
     color: var(--color-prestamos);
     margin: 0;
+    letter-spacing: -0.03em;
+    line-height: 1;
 }
 
 .prestamo-detalles {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 15px;
+    gap: 12px;
 }
 
 .detalle-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.02);
-    border-radius: 10px;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.03);
+    transition: var(--transition-pro);
+}
+.detalle-item:hover {
+    transform: translateX(5px);
+    background: white;
+    border-color: rgba(0,0,0,0.08);
 }
 
 .detalle-label {
@@ -92,73 +105,76 @@
 }
 
 .detalle-valor {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-main);
 }
-
 .detalle-valor.destacado {
     color: var(--color-prestamos);
     font-size: 1.2rem;
 }
 
-/* Información de mora */
 .info-mora {
-    border-top-color: var(--color-interes);
-    background: linear-gradient(135deg, rgba(253, 203, 110, 0.1) 0%, rgba(255, 255, 255, 1) 100%);
+    background: rgba(245, 158, 11, 0.05) !important;
+    border-top: 4px solid var(--color-interes) !important;
 }
 
 .mora-contenido {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .mora-contenido p {
     margin: 0;
-    padding: 12px;
-    background: rgba(0, 0, 0, 0.02);
-    border-radius: 8px;
+    padding: 16px 20px;
+    background: white;
+    border-radius: 12px;
     line-height: 1.6;
+    font-weight: 500;
+    border: 1px solid rgba(0,0,0,0.03);
 }
 
 .mora-contenido .nota {
-    background: rgba(253, 203, 110, 0.2);
+    background: rgba(245, 158, 11, 0.1);
     border-left: 4px solid var(--color-interes);
+    color: #b45309;
 }
 
-/* Historial de préstamos */
+/* Historial */
 .header-estado {
     font-size: 0.85rem;
-    font-weight: 600;
-    color: #95a5a6;
-    letter-spacing: 0.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
 }
 
 .prestamo-item {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     align-items: center;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    padding: 20px 25px;
+    background: white;
+    border-radius: 16px;
+    transition: var(--transition-pro);
     gap: 15px;
+    border: 1px solid rgba(0,0,0,0.03);
 }
 
 .prestamo-item:hover {
-    background: #e9ecef;
-    transform: translateX(5px);
+    transform: translateX(8px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.08);
 }
 
 .prestamo-fecha {
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 600;
     color: var(--text-main);
 }
 
 .prestamo-monto-item {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
     color: var(--color-prestamos);
     text-align: center;
 }
@@ -169,118 +185,89 @@
 
 .badge-estado {
     display: inline-block;
-    padding: 6px 15px;
+    padding: 8px 16px;
     border-radius: 20px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
 }
-
 .badge-estado.activo {
-    background: rgba(0, 184, 148, 0.15);
+    background: rgba(16, 185, 129, 0.1);
     color: var(--color-mis-ahorros);
 }
-
 .badge-estado.pagado {
-    background: rgba(0, 184, 148, 0.15);
-    color: rgba(0, 120, 90, 1);
+    background: rgba(16, 185, 129, 0.15);
+    color: #047857;
 }
-
-
 .badge-estado.vencido {
-    background: rgba(214, 48, 49, 0.15);
+    background: rgba(239, 68, 68, 0.15);
     color: var(--color-prestamos);
 }
 
-/* Sin préstamos */
 .sin-prestamos {
     text-align: center;
-    padding: 40px;
+    padding: 50px;
     color: var(--text-muted);
+    font-weight: 500;
+    font-size: 1.1rem;
 }
 
-.sin-prestamos svg {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 20px;
-    opacity: 0.3;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .header-buttons {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .btn-volver,
-    .btn-cerrar-sesion {
-        width: 100%;
-    }
-
-    .valor-grande {
-        font-size: 2.2rem;
-    }
-
-    .prestamo-item {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .prestamo-monto-item {
-        text-align: left;
-    }
-
-    .prestamo-estado {
-        text-align: left;
-    }
-
-    .historial-header {
-        display: none;
-    }
-}
-
-/* ===== Copiado del admin-prestamos.css para que sea el mismo diseño ===== */
+/* Tabla de pagos estilo admin */
 .tabla-pagos {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 12px;
-    overflow: hidden;
-    border-radius: 12px;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin-top: 15px;
 }
-
-.tabla-pagos th,
-.tabla-pagos td {
-    padding: 12px 14px;
-    border-bottom: 1px solid #e9ecef;
-    text-align: left;
-}
-
 .tabla-pagos th {
-    background: rgba(0, 0, 0, 0.04);
-    font-weight: 800;
+    padding: 0 16px 8px 16px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-align: left;
+    font-size: 0.9rem;
+    text-transform: uppercase;
 }
+.tabla-pagos td {
+    padding: 16px;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.03);
+}
+.tabla-pagos tr td:first-child { border-radius: 12px 0 0 12px; border-right: none; }
+.tabla-pagos tr td:nth-child(2) { border-left: none; border-right: none; }
+.tabla-pagos tr td:last-child { border-radius: 0 12px 12px 0; border-left: none; }
 
 .tabla-pagos td.valor {
-    font-weight: 900;
-}
-
-/* ===== Estado (verdecito cuando está pagada) ===== */
-.pill-estado {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 999px;
     font-weight: 800;
-    font-size: 0.85rem;
-    color: #fff;
-    line-height: 1;
+    color: var(--text-main);
 }
 
-.pill-estado.pagada {
-    background: linear-gradient(135deg, #00b894 0%, #2ecc71 100%);
-    box-shadow: 0 8px 18px rgba(0, 184, 148, 0.22);
+.chip {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+.chip-pagado { background: rgba(16, 185, 129, 0.15); color: #047857; }
+.chip-pendiente { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+
+.acciones-prestamo {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding-top: 15px;
+    border-top: 1px dashed rgba(0,0,0,0.08);
 }
 
-.pill-estado.pendiente {
-    background: linear-gradient(135deg, #636e72 0%, #b2bec3 100%);
-    box-shadow: 0 8px 18px rgba(99, 110, 114, 0.18);
+.prestamo-item.prestamo-pagado { border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.03); }
+.prestamo-item.prestamo-pendiente { border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.03); }
+
+@media (max-width: 768px) {
+    .header-buttons { width: 100%; flex-direction: column; }
+    .btn-volver, .btn-cerrar-sesion { width: 100%; }
+    .valor-grande { font-size: 2.5rem; }
+    .prestamo-item { grid-template-columns: 1fr; text-align: center; }
+    .prestamo-monto-item, .prestamo-estado { text-align: center; }
+    .historial-header { display: none; }
 }

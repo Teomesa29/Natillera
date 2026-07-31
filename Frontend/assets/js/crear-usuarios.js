@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:8000";
+const API = window.API_BASE || localStorage.getItem("API_BASE") || "http://127.0.0.1:8000";
 
 /* ------------------ Modal ------------------ */
 function setupModal() {
@@ -92,10 +92,63 @@ async function crearUsuario(payload) {
     return data;
 }
 
+async function cargarTablaUsuarios() {
+    const body = document.getElementById("bodyListaUsuarios");
+    if (!body) return;
+
+    try {
+        const token = localStorage.getItem("access_token");
+        const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+        const res = await fetch(`${API}/api/usuarios`, { headers });
+        const usuarios = await res.json();
+
+        if (!Array.isArray(usuarios) || usuarios.length === 0) {
+            body.innerHTML = `<tr><td colspan="6" style="padding: 15px; text-align: center; color: var(--text-muted);">No hay socios registrados.</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = usuarios.map(u => `
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 12px; font-weight: 700; color: var(--text-main);">${u.nombre}</td>
+                <td style="padding: 12px; color: var(--text-muted);">${u.usuario}</td>
+                <td style="padding: 12px;">${u.telefono || '-'}</td>
+                <td style="padding: 12px; font-weight: 800; color: #ec4899;">#${String(u.polla || 0).padStart(2, '0')}</td>
+                <td style="padding: 12px;"><span style="background: ${u.rol === 'admin' ? '#e0e7ff' : '#f1f5f9'}; color: ${u.rol === 'admin' ? '#4f46e5' : '#64748b'}; padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: 0.8rem;">${u.rol.toUpperCase()}</span></td>
+                <td style="padding: 12px; text-align: center;">
+                    <button class="btn-peligro-sm" onclick="eliminarUsuarioId(${u.id}, '${u.nombre}')" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.8rem;">🗑️ Eliminar</button>
+                </td>
+            </tr>
+        `).join("");
+    } catch (err) {
+        console.error("Error cargando usuarios:", err);
+    }
+}
+
+async function eliminarUsuarioId(id, nombre) {
+    if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente al socio "${nombre}"? Se borrarán sus ahorros, movimientos y préstamos.`)) return;
+
+    try {
+        const token = localStorage.getItem("access_token");
+        const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+        const res = await fetch(`${API}/api/usuarios/${id}`, {
+            method: "DELETE",
+            headers
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Error al eliminar usuario");
+
+        alert(`✅ ${data.mensaje}`);
+        await cargarTablaUsuarios();
+    } catch (err) {
+        alert(`❌ ${err.message}`);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     if (!protegerAdmin()) return;
 
     const modal = setupModal();
+    cargarTablaUsuarios();
 
     // ✅ Cerrar sesión
     const btnCerrar = document.getElementById("btnCerrarSesion");
@@ -137,6 +190,8 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("ahorro_mensual").value = 0;
             document.getElementById("porcentaje_interes").value = 8.5;
             document.getElementById("rol").value = "socio";
+
+            await cargarTablaUsuarios();
         } catch (err) {
             console.error(err);
 

@@ -49,10 +49,51 @@ def crear_usuario(payload: UsuarioCreate, db: Session = Depends(get_db)):
 
     return {"mensaje": "Usuario creado", "usuario": {"id": nuevo_usuario.id, "usuario": nuevo_usuario.usuario}, "ahorro": {"id": ahorro.id}}
 
+from app.schemas.schemas import UsuarioCreate, UsuarioObservacionesUpdate
+
 @router.get("/usuarios")
 def listar_usuarios(db: Session = Depends(get_db)):
     usuarios = db.query(Usuario).order_by(Usuario.nombre.asc()).all()
     return [
-        {"id": u.id, "usuario": u.usuario, "nombre": u.nombre, "rol": u.rol, "activo": u.activo}
+        {
+            "id": u.id,
+            "usuario": u.usuario,
+            "nombre": u.nombre,
+            "telefono": u.telefono,
+            "rol": u.rol,
+            "activo": u.activo,
+            "polla": u.polla,
+            "observaciones": u.observaciones
+        }
         for u in usuarios
     ]
+
+@router.delete("/usuarios/{usuario_id}")
+def eliminar_usuario(usuario_id: int, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    from app.models.models import Prestamo, Movimiento
+    db.query(Prestamo).filter(Prestamo.usuario_id == usuario_id).delete()
+    db.query(Movimiento).filter(Movimiento.usuario_id == usuario_id).delete()
+    db.query(Ahorro).filter(Ahorro.usuario_id == usuario_id).delete()
+    
+    db.delete(usuario)
+    db.commit()
+    return {"mensaje": f"Usuario {usuario.nombre} eliminado correctamente"}
+
+@router.put("/usuarios/{usuario_id}/observaciones")
+def actualizar_observaciones(usuario_id: int, payload: UsuarioObservacionesUpdate, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+    
+    usuario.observaciones = payload.observaciones
+    db.commit()
+    db.refresh(usuario)
+    return {"mensaje": "Observaciones actualizadas correctamente", "observaciones": usuario.observaciones}
+

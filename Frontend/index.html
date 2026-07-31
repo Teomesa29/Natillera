@@ -10,49 +10,109 @@
 </head>
 
 <body>
+    <!-- Canvas interactivo de estrellas -->
+    <canvas id="starfield"></canvas>
+
     <div class="login-container">
+        <!-- Izquierda: Formulario Glassmorphism Oscuro -->
         <div class="login-card">
             <div class="login-header">
-                <h1>🎄 Natillera Familiar</h1>
-                <p>Inicia sesión para ver tus ahorros</p>
+                <h1>🌟 INGRESAR</h1>
+                <p>Inicia sesión en tu aventura</p>
             </div>
 
             <form class="login-form">
                 <div class="form-group">
                     <label for="usuario">Usuario</label>
-                    <input type="text" id="usuario" name="usuario" placeholder="Ingresa tu usuario" required>
+                    <div class="input-wrapper">
+                        <i class="icon">👤</i>
+                        <input type="text" id="usuario" name="usuario" placeholder="Tu usuario" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+                    <div class="input-wrapper">
+                        <i class="icon">🔒</i>
+                        <input type="password" id="password" name="password" placeholder="Tu contraseña" required>
+                    </div>
                 </div>
 
                 <div class="form-options">
                     <label class="checkbox-container">
                         <input type="checkbox" id="recordar">
+                        <span class="checkmark"></span>
                         <span>Recordarme</span>
                     </label>
-                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
                 </div>
 
-                <button type="submit" class="btn-login">Ingresar</button>
+                <button type="submit" class="btn-login">
+                    <span>Ingresar</span>
+                    <div class="btn-glow"></div>
+                </button>
 
                 <div id="mensaje" class="mensaje-error"></div>
-
+                
+                <div class="divider">
+                    <span>¿Problemas para ingresar?</span>
+                </div>
+                
+                <div class="forgot-container" style="text-align: center;">
+                    <button type="button" class="btn-forgot-link" id="btnForgot">Recuperar contraseña</button>
+                </div>
             </form>
-
-            <div class="login-footer">
-                <p>¿No tienes cuenta? <a href="#">Contacta al administrador</a></p>
-            </div>
         </div>
 
+        <!-- Derecha: Imagen decorativa -->
         <div class="info-box">
-            <h3></h3>
+            <img src="assets/images/Natillera.png" alt="Natillera" class="floating-image image-rounded">
+            <div class="info-text">
+                <h2>NATILLERA FAMILIAR</h2>
+                <h3 class="glitch" data-text="DECEMBRINA">DECEMBRINA</h3>
+            </div>
         </div>
     </div>
 
-    <script src="/Frontend/assets/js/login.js"></script>
+    <!-- Modal de Recuperar Contraseña -->
+    <div class="modal-overlay hidden" id="forgotModal">
+        <div class="modal-content glass-panel">
+            <button type="button" class="btn-close" id="btnCloseModal">&times;</button>
+            <h2 style="margin-bottom: 10px;">🌌 Recuperar Contraseña</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Ingresa tus datos para verificar tu identidad y restablecer tu contraseña.</p>
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Correo Electrónico</label>
+                <div class="input-wrapper">
+                    <i class="icon">📧</i>
+                    <input type="email" id="forgotEmail" placeholder="tu@correo.com">
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Celular</label>
+                <div class="input-wrapper">
+                    <i class="icon">📱</i>
+                    <input type="tel" id="forgotPhone" placeholder="Tu número">
+                </div>
+            </div>
+
+            <div class="form-group hidden" id="newPasswordGroup" style="margin-bottom: 25px;">
+                <label>Nueva Contraseña</label>
+                <div class="input-wrapper">
+                    <i class="icon">🔑</i>
+                    <input type="password" id="forgotNewPassword" placeholder="Escribe la nueva contraseña">
+                </div>
+            </div>
+            
+            <button type="button" class="btn-login" id="btnSubmitForgot" style="width: 100%;">
+                <span>Actualizar Contraseña</span>
+                <div class="btn-glow"></div>
+            </button>
+            <div id="forgotMessage" class="mensaje-error"></div>
+        </div>
+    </div>
+
+    <script src="assets/js/login.js"></script>
 </body>
 
 </html>
