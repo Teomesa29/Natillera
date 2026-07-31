@@ -93,7 +93,7 @@ function parseMesDescripcion(desc) {
 let dashAporteChart = null;
 let dashPollaChart = null;
 
-function renderMatrizPersonal(movs) {
+function renderMatrizPersonal(movs, totalAhorradoUsuario = 0) {
     const body = document.getElementById("bodyMatrizPersonal");
     if (!body) return;
 
@@ -126,14 +126,14 @@ function renderMatrizPersonal(movs) {
     }
 
     let trHtml = '<tr style="border-bottom: 1px solid #f1f5f9;">';
-    let totalAhorradoAcumulado = 0;
+    let totalCalculado = 0;
 
     for (let m = 0; m < 12; m++) {
         const estado = mesesEstado[m];
         let cellContent = '<span style="color: #cbd5e1;">❌</span>';
         let cellBg = '';
         let titleInfo = `Mes de ${MESES[m]}`;
-        totalAhorradoAcumulado += Number(estado.montoAporte || 0);
+        totalCalculado += Number(estado.montoAporte || 0);
 
         if (estado.tieneAjuste) {
             const montoFormated = estado.montoAporte !== 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #ea580c;">$${Math.round(estado.montoAporte/1000)}k</span>` : '';
@@ -163,18 +163,20 @@ function renderMatrizPersonal(movs) {
         `;
     }
 
+    const totalFinal = totalCalculado > 0 ? totalCalculado : Number(totalAhorradoUsuario || 0);
+
     trHtml += `
         <td style="padding: 12px; text-align: right; font-weight: 800; color: #10b981; font-size: 0.95rem;">
-            ${formatearMoneda(totalAhorradoAcumulado)}
+            ${formatearMoneda(totalFinal)}
         </td>
     </tr>`;
 
     body.innerHTML = trHtml;
 }
 
-function renderDashboardCharts(movs) {
+function renderDashboardCharts(movs, totalAhorradoUsuario = 0) {
     const listMovs = Array.isArray(movs) ? movs : [];
-    renderMatrizPersonal(listMovs);
+    renderMatrizPersonal(listMovs, totalAhorradoUsuario);
 
     const aportados = new Set();
     const pollas = new Set();
@@ -451,7 +453,8 @@ async function init() {
 
         if (movRes.status === "fulfilled" && movRes.value.ok) {
             const movData = await movRes.value.json();
-            renderDashboardCharts(movData);
+            const totalAhorradoSocio = data.status === "fulfilled" ? (data.value.total_ahorrado || 0) : 0;
+            renderDashboardCharts(movData, totalAhorradoSocio);
         }
     } catch (err) {
         console.error(err);
