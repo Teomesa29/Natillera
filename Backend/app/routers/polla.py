@@ -1,9 +1,9 @@
 from datetime import date, timedelta, datetime
 import requests
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import get_db, SessionLocal
 from app.models.models import Usuario, ResultadoLoteria
 
 router = APIRouter(prefix="/api", tags=["Polla"])
@@ -11,13 +11,11 @@ router = APIRouter(prefix="/api", tags=["Polla"])
 API_EXTERNA = "https://api-resultadosloterias.com/api/results"
 
 def last_friday_of_month(year: int, month: int) -> date:
-    # último día del mes
     if month == 12:
         last_day = date(year, 12, 31)
     else:
         last_day = date(year, month + 1, 1) - timedelta(days=1)
 
-    # weekday(): lunes=0 ... viernes=4
     offset = (last_day.weekday() - 4) % 7
     return last_day - timedelta(days=offset)
 
@@ -28,7 +26,7 @@ def prev_month_year_month(d: date) -> tuple[int, int]:
 
 def fetch_medellin_result(draw_date: date) -> dict:
     url = f"{API_EXTERNA}/{draw_date.isoformat()}"
-    r = requests.get(url, timeout=20)
+    r = requests.get(url, timeout=3)
     r.raise_for_status()
     res_json = r.json()
 
@@ -52,30 +50,65 @@ def fetch_medellin_result(draw_date: date) -> dict:
         "series": str(med.get("series") or "") if med.get("series") is not None else None,
     }
 
+def task_sync_today_lottery():
+    """
+    Tarea asíncrona de segundo plano (Background Task) para no bloquear la respuesta HTTP del usuario.
+    """
+    db = SessionLocal()
+    try:
+        today = date.today()
+        ultimo_viernes_mes_actual = last_friday_of_month(today.year, today.month)
+        
+        if today >= ultimo_viernes_mes_actual:
+            draw_date = ultimo_viernes_mes_actual
+        else:
+            prev_y, prev_m = prev_month_year_month(today)
+            draw_date = last_friday_of_month(prev_y, prev_m)
+        
+        existente = db.query(ResultadoLoteria).filter(
+            ResultadoLoteria.slug == "medellin",
+            ResultadoLoteria.date == draw_date
+        ).first()
 
-def get_or_fetch_last_result(db: Session) -> ResultadoLoteria | None:
-    """
-    Sincroniza y devuelve el último resultado del último viernes disponible.
-    """
-    sync_today_lottery_if_needed(db)
-    
-    ultimo = (
+        if not existente:
+            med = fetch_medellin_result(draw_date)
+            if med and med.get("result"):
+                nuevo = ResultadoLoteria(
+                    slug="medellin",
+                    lottery="MEDELLIN",
+                    date=draw_date,
+                    result=med["result"],
+                    series=med.get("series"),
+                    fetched_at=datetime.now(),
+                )
+                db.add(nuevo)
+                db.commit()
+    except Exception as e:
+        print(f"[Segundo Plano] Sorteo ({date.today()}) aún no disponible en API externa: {e}")
+    finally:
+        db.close()
+
+
+def get_or_fetch_last_result(db: Session, background_tasks: BackgroundTasks | None = None) -> ResultadoLoteria | None:
+    if background_tasks:
+        background_tasks.add_task(task_sync_today_lottery)
+
+    return (
         db.query(ResultadoLoteria)
         .filter(ResultadoLoteria.slug == "medellin")
         .order_by(ResultadoLoteria.date.desc())
         .first()
     )
-    return ultimo
 
 @router.get("/polla/estado/{usuario_id}")
-def estado_polla(usuario_id: int, db: Session = Depends(get_db)):
+def estado_polla(usuario_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     user = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     if user.polla is None:
         raise HTTPException(status_code=400, detail="Este usuario no tiene número de polla asignado")
 
-    ultimo = get_or_fetch_last_result(db)
+    ultimo = get_or_fetch_last_result(db, background_tasks)
     if not ultimo:
         return {
             "usuario_id": user.id,
@@ -84,7 +117,6 @@ def estado_polla(usuario_id: int, db: Session = Depends(get_db)):
             "mensaje": "No hay resultado disponible todavía."
         }
 
-    # ✅ Regla B: últimos 2 dígitos
     res2 = str(ultimo.result)[-2:].zfill(2)
     polla2 = str(user.polla)[-2:].zfill(2)
     gano = (res2 == polla2)
@@ -98,53 +130,14 @@ def estado_polla(usuario_id: int, db: Session = Depends(get_db)):
         "serie": ultimo.series,
         "gano": gano,
         "comparacion": {"resultado_2": res2, "polla_2": polla2},
-        # Este mensaje es el que quieres ver:
         "mensaje": (f"Número ganador del mes pasado: {res2}. ¡Ganaste!"
                     if gano
                     else f"Número ganador del mes pasado: {res2}. No ganaste.")
     }
 
-def sync_today_lottery_if_needed(db: Session):
-    """
-    Consulta y persiste ÚNICAMENTE el resultado del ÚLTIMO VIERNES del mes de la Lotería de Medellín.
-    """
-    today = date.today()
-    ultimo_viernes_mes_actual = last_friday_of_month(today.year, today.month)
-    
-    # Determinar si la fecha a auditar es el último viernes de este mes o del mes pasado
-    if today >= ultimo_viernes_mes_actual:
-        draw_date = ultimo_viernes_mes_actual
-    else:
-        prev_y, prev_m = prev_month_year_month(today)
-        draw_date = last_friday_of_month(prev_y, prev_m)
-    
-    # Verificar si ya existe este resultado en DB
-    existente = db.query(ResultadoLoteria).filter(
-        ResultadoLoteria.slug == "medellin",
-        ResultadoLoteria.date == draw_date
-    ).first()
-
-    if not existente:
-        try:
-            med = fetch_medellin_result(draw_date)
-            if med and med.get("result"):
-                nuevo = ResultadoLoteria(
-                    slug="medellin",
-                    lottery="MEDELLIN",
-                    date=draw_date,
-                    result=med["result"],
-                    series=med.get("series"),
-                    fetched_at=datetime.now(),
-                )
-                db.add(nuevo)
-                db.commit()
-        except Exception as e:
-            print(f"Sorteo del último viernes ({draw_date}) aún no disponible en API externa: {e}")
-
 @router.get("/polla/historial")
-def historial_polla(db: Session = Depends(get_db)):
-    # Auto-sincronizar sorteo de hoy si aplica
-    sync_today_lottery_if_needed(db)
+def historial_polla(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    background_tasks.add_task(task_sync_today_lottery)
     
     resultados = db.query(ResultadoLoteria).order_by(ResultadoLoteria.date.desc()).all()
     return [
