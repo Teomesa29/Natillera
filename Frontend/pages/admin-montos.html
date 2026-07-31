@@ -61,7 +61,41 @@
             </div>
 
             <br>
-            <div class="acciones" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="txtObservaciones">Observaciones / Notas del Socio</label>
+                <textarea id="txtObservaciones" rows="2" placeholder="Ej: Guille ahorra 100.000 pero por mora se descuentan 20.000 de la cuota y 10.000 por polla..." style="width: 100%; border-radius: 12px; border: 1px solid #cbd5e1; padding: 10px; font-family: inherit; font-size: 0.9rem; margin-top: 5px; box-sizing: border-box;"></textarea>
+                <div style="margin-top: 8px;">
+                    <button id="btnGuardarObs" type="button" class="btn-secundario" style="background: #475569; color: white; padding: 8px 16px; font-size: 0.85rem;">💾 Guardar Observaciones</button>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px dashed #e2e8f0; margin: 20px 0;">
+
+            <h4 style="margin: 0 0 12px 0; color: var(--text-main); font-size: 1rem;">⚖️ Ajustes Especiales, Penalizaciones y Descuentos</h4>
+            <div class="admin-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div class="form-group">
+                    <label for="selectTipoAjuste">Tipo de Operación</label>
+                    <select id="selectTipoAjuste" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
+                        <option value="descuento_polla">Descuento por Polla (-)</option>
+                        <option value="penalizacion_mora">Penalización por Mora (-)</option>
+                        <option value="abono_ahorro">Abono a Ahorro (+)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="montoAjuste">Monto (COP)</label>
+                    <input id="montoAjuste" type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Ej: 20000" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;" />
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="descAjuste">Detalle / Motivo del Ajuste</label>
+                    <input id="descAjuste" type="text" placeholder="Ej: Descuento cuota mayo por polla ganada" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;" />
+                </div>
+            </div>
+            <div style="margin-top: 12px;">
+                <button id="btnAplicarAjuste" type="button" class="btn-secundario" style="background: #e11d48; color: white;">Aplicar Ajuste / Penalización</button>
+            </div>
+
+            <br>
+            <div class="acciones" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
                 <button id="btnGuardarConfig" type="button" class="btn-admin">Guardar aporte base</button>
                 <button id="btnRegistrarAporte" type="button" class="btn-secundario">Registrar Aporte Mensual</button>
                 <button id="btnRegistrarPolla" type="button" class="btn-secundario" style="background-color: var(--color-pollas); color: white;">Registrar Pago de Polla</button>
@@ -212,16 +246,25 @@
                 <button onclick="cerrarModalPagoMes()" style="background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: #64748b; font-weight: 700; font-size: 1.1rem;">✕</button>
             </div>
 
-            <div style="display: grid; gap: 10px; margin-top: 20px;">
-                <button onclick="ejecutarAccionPagoMes('aporte', 'registrar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; color: #0f172a; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#ecfdf5'; this.style.borderColor='#10b981'; this.style.color='#059669';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.color='#0f172a';">
+            <!-- Sección de edición de cuota pagada o personalizada -->
+            <div id="contenedorEditarCuota" style="margin-bottom: 15px; background: #f8fafc; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <label style="font-size: 0.82rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Monto de la Cuota Aporte (COP):</label>
+                <div style="display: flex; gap: 8px;">
+                    <input id="inputMontoCuotaModal" type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="Ej: 100000" style="flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem;" />
+                    <button onclick="guardarMontoCuotaPersonalizado()" style="background: #4f46e5; color: white; border: none; border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; font-size: 0.85rem;">✏️ Guardar</button>
+                </div>
+            </div>
+
+            <div style="display: grid; gap: 10px; margin-top: 10px;">
+                <button id="btnModalRegAporte" onclick="ejecutarAccionPagoMes('aporte', 'registrar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; color: #0f172a; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#ecfdf5'; this.style.borderColor='#10b981'; this.style.color='#059669';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.color='#0f172a';">
                     <span>🟢 Registrar Aporte Mensual</span>
                     <span style="font-size: 1.1rem;">→</span>
                 </button>
-                <button onclick="ejecutarAccionPagoMes('polla', 'registrar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; color: #0f172a; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#fce7f3'; this.style.borderColor='#ec4899'; this.style.color='#be185d';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.color='#0f172a';">
+                <button id="btnModalRegPolla" onclick="ejecutarAccionPagoMes('polla', 'registrar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; color: #0f172a; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#fce7f3'; this.style.borderColor='#ec4899'; this.style.color='#be185d';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.color='#0f172a';">
                     <span>🎲 Registrar Pago de Polla</span>
                     <span style="font-size: 1.1rem;">→</span>
                 </button>
-                <button onclick="ejecutarAccionPagoMes('aporte', 'eliminar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #ffe4e6; background: #fff1f2; font-weight: 600; color: #e11d48; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#ffe4e6';" onmouseout="this.style.background='#fff1f2';">
+                <button id="btnModalDelAporte" onclick="ejecutarAccionPagoMes('aporte', 'eliminar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #ffe4e6; background: #fff1f2; font-weight: 600; color: #e11d48; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#ffe4e6';" onmouseout="this.style.background='#fff1f2';">
                     <span>🗑️ Eliminar Registro de Aporte</span>
                     <span style="font-size: 1.1rem;">✕</span>
                 </button>

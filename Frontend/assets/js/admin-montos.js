@@ -188,7 +188,7 @@ function mostrarMensaje(texto, esError = false) {
     }, 4000);
 }
 
-function renderHistorial(movs) {
+function renderHistorial(movs, nombreSocio = "") {
     const cont = document.getElementById("historialAdmin");
     if (!cont) return;
 
@@ -199,7 +199,7 @@ function renderHistorial(movs) {
         return;
     }
 
-    cont.innerHTML = ordenados.slice(0, 30).map(m => {
+    cont.innerHTML = ordenados.slice(0, 5).map(m => {
         const fecha = (m.fecha || "").slice(0, 10) || "-";
         const detalle = m.descripcion || m.tipo || "-";
         const esEgreso = Number(m.monto || 0) < 0 || String(m.categoria || "").toLowerCase() === "egreso" || detalle.toLowerCase().includes("descuento") || detalle.toLowerCase().includes("penalizac");
@@ -217,13 +217,14 @@ function renderHistorial(movs) {
 
         const montoAbs = Math.abs(Number(m.monto || 0));
         const montoTexto = esEgreso ? `-$${montoAbs.toLocaleString("es-CO")} COP` : formatearMoneda(m.monto);
+        const socioTag = nombreSocio ? `<span style="font-weight: 700; color: #4f46e5;">[${nombreSocio}]</span> ` : '';
 
         return `
       <div class="movimiento" style="margin-bottom: 10px;">
         <div class="movimiento-info">
             ${iconHtml}
             <div class="movimiento-detalle">
-                <p class="movimiento-titulo" style="font-size: 0.95rem;">${detalle}</p>
+                <p class="movimiento-titulo" style="font-size: 0.95rem;">${socioTag}${detalle}</p>
                 <p class="movimiento-fecha">${fecha}</p>
             </div>
         </div>
@@ -360,7 +361,7 @@ async function cargarMatrizPagos() {
 
                     trHtml += `
                         <td style="padding: 8px 4px; text-align: center;">
-                            <div onclick="togglePagoMesModal(${u.usuario_id}, '${u.nombre}', ${m}, '${MESES[m]}')" title="${titleText} (Haz clic para modificar)" style="width: 28px; height: 28px; background: ${bgBox}; border-radius: 6px; margin: 0 auto; cursor: pointer; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
+                            <div onclick="togglePagoMesModal(${u.usuario_id}, '${u.nombre}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${titleText} (Haz clic para modificar o editar cuota)" style="width: 28px; height: 28px; background: ${bgBox}; border-radius: 6px; margin: 0 auto; cursor: pointer; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>
                         </td>
                     `;
                 }
@@ -416,18 +417,24 @@ async function cargarMatrizPagos() {
                     let cellContent = '<span style="color: #cbd5e1;">❌</span>';
                     let cellBg = '';
 
+                    const montoTexto = pago.monto_aporte > 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #059669;">$${Math.round(pago.monto_aporte/1000)}k</span>` : '';
+
                     if (pago.aporte && pago.polla) {
-                        cellContent = '🟢🎲';
+                        cellContent = `🟢🎲${montoTexto}`;
                         cellBg = 'background: rgba(16, 185, 129, 0.12);';
                     } else if (pago.aporte) {
-                        cellContent = '🟢';
+                        cellContent = `🟢${montoTexto}`;
                         cellBg = 'background: rgba(16, 185, 129, 0.08);';
                     } else if (pago.polla) {
-                        cellContent = '🎲';
+                        cellContent = `🎲`;
                         cellBg = 'background: rgba(236, 72, 153, 0.08);';
                     }
 
-                    trHtml += `<td style="padding: 10px 4px; text-align: center; font-size: 1.05rem; ${cellBg}">${cellContent}</td>`;
+                    trHtml += `
+                        <td onclick="togglePagoMesModal(${u.usuario_id}, '${u.nombre}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${u.nombre} - ${MESES[m]} (Clic para gestionar o editar cuota)" style="padding: 8px 4px; text-align: center; font-size: 0.95rem; cursor: pointer; ${cellBg} transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+                            ${cellContent}
+                        </td>
+                    `;
                 }
 
                 trHtml += `
@@ -486,7 +493,7 @@ async function cargarUsuario(usuarioId) {
     if (inputAporte) inputAporte.value = Number(ahorro.ahorro_mensual || 0);
 
     llenarSelectMesesInteligente(movs);
-    renderHistorial(movs);
+    renderHistorial(movs, userFound?.nombre || "");
 
     return { ahorro, movs };
 }
@@ -608,7 +615,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     });
                     document.getElementById("montoAjuste").value = "";
                     document.getElementById("descAjuste").value = "";
-                    await cargarUsuario(usuarioId);
+                    await Promise.all([
+                        cargarUsuario(usuarioId),
+                        cargarMatrizPagos()
+                    ]);
                     mostrarMensaje(`✅ ${r?.mensaje || "Ajuste registrado"}`, false);
                 } catch (err) {
                     mostrarMensaje(`❌ ${err.message}`, true);
@@ -638,7 +648,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     method: "POST",
                     body: JSON.stringify({ mes, anio: Number(anio) })
                 });
-                await cargarUsuario(usuarioId);
+                await Promise.all([
+                    cargarUsuario(usuarioId),
+                    cargarMatrizPagos()
+                ]);
                 mostrarMensaje(`✅ ${r?.mensaje || "Aporte registrado"}`, false);
             } catch (err) {
                 mostrarMensaje(`❌ ${err.message}`, true);
@@ -667,7 +680,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     method: "POST",
                     body: JSON.stringify({ mes, anio: Number(anio) })
                 });
-                await cargarUsuario(usuarioId);
+                await Promise.all([
+                    cargarUsuario(usuarioId),
+                    cargarMatrizPagos()
+                ]);
                 mostrarMensaje(`✅ ${r?.mensaje || "Pago Polla registrado"}`, false);
             } catch (err) {
                 mostrarMensaje(`❌ ${err.message}`, true);
@@ -701,14 +717,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 let modalPagoState = null;
 
-function togglePagoMesModal(usuarioId, nombreSocio, mesIdx, nombreMes) {
-    modalPagoState = { usuarioId, nombreSocio, mesIdx, nombreMes, anio: 2026 };
+function togglePagoMesModal(usuarioId, nombreSocio, mesIdx, nombreMes, tieneAporte = false, tienePolla = false, montoActual = 0) {
+    modalPagoState = { usuarioId, nombreSocio, mesIdx, nombreMes, anio: 2026, tieneAporte, tienePolla, montoActual };
     const modal = document.getElementById("modalPagoMes");
     const titulo = document.getElementById("modalPagoMesTitulo");
     const sub = document.getElementById("modalPagoMesSub");
+    const inputMonto = document.getElementById("inputMontoCuotaModal");
+
+    const btnRegAporte = document.getElementById("btnModalRegAporte");
+    const btnRegPolla = document.getElementById("btnModalRegPolla");
+    const btnDelAporte = document.getElementById("btnModalDelAporte");
 
     if (titulo) titulo.textContent = `${nombreSocio}`;
-    if (sub) sub.textContent = `Gestión de pagos de ${nombreMes} 2026`;
+    if (sub) sub.textContent = `Mes de ${nombreMes} 2026`;
+    if (inputMonto) inputMonto.value = Number(montoActual || 0);
+
+    // Control inteligente de opciones según el estado actual del pago
+    if (btnRegAporte) btnRegAporte.style.display = tieneAporte ? "none" : "flex";
+    if (btnRegPolla) btnRegPolla.style.display = tienePolla ? "none" : "flex";
+    if (btnDelAporte) btnDelAporte.style.display = (tieneAporte || tienePolla) ? "flex" : "none";
 
     if (modal) {
         modal.style.display = "flex";
@@ -719,6 +746,38 @@ function cerrarModalPagoMes() {
     const modal = document.getElementById("modalPagoMes");
     if (modal) modal.style.display = "none";
     modalPagoState = null;
+}
+
+async function guardarMontoCuotaPersonalizado() {
+    if (!modalPagoState) return;
+    const { usuarioId, nombreMes, anio } = modalPagoState;
+    const nuevoMonto = Number(document.getElementById("inputMontoCuotaModal")?.value || 0);
+
+    if (nuevoMonto < 0) {
+        mostrarMensaje("El monto de la cuota no puede ser negativo", true);
+        return;
+    }
+
+    cerrarModalPagoMes();
+
+    try {
+        const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_ajuste`, {
+            method: "POST",
+            body: JSON.stringify({
+                usuario_id: usuarioId,
+                tipo: "Aporte Personalizado",
+                monto: nuevoMonto,
+                descripcion: `Aporte (${nombreMes} ${anio})`
+            })
+        });
+        mostrarMensaje(`✅ Cuota de ${nombreMes} actualizada a ${formatearMoneda(nuevoMonto)}`, false);
+        await Promise.all([
+            cargarMatrizPagos(),
+            cargarUsuario(usuarioId)
+        ]);
+    } catch (err) {
+        mostrarMensaje(`❌ ${err.message}`, true);
+    }
 }
 
 async function ejecutarAccionPagoMes(tipo, accion) {
