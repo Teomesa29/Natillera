@@ -343,14 +343,15 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
             break
 
     if accion == "eliminar":
-        if movs:
-            for m in movs:
+        movs_a_borrar = [m for m in movs if "polla" not in (m.tipo or "").lower() and "polla" not in (m.descripcion or "").lower()]
+        if movs_a_borrar:
+            for m in movs_a_borrar:
                 if (m.monto or 0) > 0 and ("aporte" in (m.tipo or "").lower() or "aporte" in (m.descripcion or "").lower()):
                     ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) - m.monto))
                 db.delete(m)
             db.commit()
-            return {"mensaje": f"Registro de {tipo_pago} de {mes_nombre} eliminado"}
-        return {"mensaje": "No se encontró registro previo para eliminar"}
+            return {"mensaje": f"Cuota Aporte de {mes_nombre} eliminada (se conserva la Polla si existía)"}
+        return {"mensaje": "No se encontró registro de cuota aporte para eliminar en este mes"}
     else: # registrar
         if not mov_encontrado:
             monto = int(ahorro.ahorro_mensual or 0) if tipo_pago == "aporte" else 10000
@@ -464,6 +465,38 @@ def resetear_usuario(usuario_id: int, db: Session = Depends(get_db)):
     return {"mensaje": f"Usuario reseteado: {user.usuario} (rol: {user.rol})"}
 
 
+def ultimo_mes_pagado_texto_desde_movimientos(db: Session, usuario_id: int) -> str:
+    movs = (
+        db.query(Movimiento)
+        .filter(Movimiento.usuario_id == usuario_id, Movimiento.tipo == "Aporte Mensual")
+        .all()
+    )
+
+    now = datetime.now()
+    year_actual = now.year
+
+    if not movs:
+        return f"Enero {year_actual}"
+
+    max_mes_index = -1
+    max_year = year_actual
+
+    for mov in movs:
+        parsed = parse_mes_desde_descripcion(mov.descripcion or "")
+        if parsed:
+            mes_index, y = parsed
+            val = y * 12 + mes_index
+            current_max = max_year * 12 + max_mes_index
+            if val > current_max or max_mes_index == -1:
+                max_mes_index = mes_index
+                max_year = y
+
+    if max_mes_index == -1:
+        return f"Enero {year_actual}"
+
+    return f"{MESES_ES[max_mes_index]} {max_year}"
+
+
 # =========================================================
 # AJUSTES Y DESCUENTOS MANUALES
 # =========================================================
@@ -482,11 +515,11 @@ def registrar_ajuste_manual(usuario_id: int, payload: AjusteManualPayload, db: S
     categoria = "egreso" if monto < 0 else "ingreso"
     tipo = payload.tipo or ("Descuento Ahorro" if monto < 0 else "Abono Ahorro")
     
-    # Detectar mes para asociar en la matriz
+    # Detectar el último mes que efectivamente tiene pago el socio para asociar el descuento
     mes_patron = ""
     parsed = parse_mes_desde_descripcion(payload.descripcion or "")
     if not parsed:
-        mes_texto = siguiente_mes_texto_desde_movimientos(db, usuario_id)
+        mes_texto = ultimo_mes_pagado_texto_desde_movimientos(db, usuario_id)
         mes_patron = f" ({mes_texto})"
     
     descripcion = f"{payload.descripcion or 'Ajuste manual'}{mes_patron}"
