@@ -525,7 +525,9 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
                 "monto_aporte": 0,
                 "polla": False,
                 "monto_polla": 0,
-                "total_mes": 0
+                "total_mes": 0,
+                "tiene_ajuste": False,
+                "motivo_ajuste": ""
             }
 
         for mov in movs:
@@ -534,7 +536,14 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
                 mes_idx, y = parsed
                 if y == anio and 0 <= mes_idx <= 11:
                     tipo_lower = (mov.tipo or "").lower()
-                    if "aporte" in tipo_lower:
+                    desc_lower = (mov.descripcion or "").lower()
+
+                    if "descuento" in tipo_lower or "penalizac" in tipo_lower or "ajuste" in tipo_lower or "descuento" in desc_lower or "penalizac" in desc_lower or "mora" in desc_lower:
+                        pagos_meses[mes_idx]["tiene_ajuste"] = True
+                        pagos_meses[mes_idx]["motivo_ajuste"] = mov.descripcion or mov.tipo
+                        pagos_meses[mes_idx]["monto_aporte"] += int(mov.monto or 0)
+                        pagos_meses[mes_idx]["total_mes"] += int(mov.monto or 0)
+                    elif "aporte" in tipo_lower:
                         pagos_meses[mes_idx]["aporte"] = True
                         pagos_meses[mes_idx]["monto_aporte"] += int(mov.monto or 0)
                         pagos_meses[mes_idx]["total_mes"] += int(mov.monto or 0)

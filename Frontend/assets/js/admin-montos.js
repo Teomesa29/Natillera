@@ -348,7 +348,10 @@ async function cargarMatrizPagos() {
                     if (pago.aporte) globalAportesCount++;
                     if (pago.polla) globalPollasCount++;
 
-                    if (pago.aporte && pago.polla) {
+                    if (pago.tiene_ajuste) {
+                        bgBox = '#f97316'; // Ajuste / Descuento (Naranja)
+                        titleText = `Ajuste/Descuento: ${pago.motivo_ajuste || "Ajuste registrado"}`;
+                    } else if (pago.aporte && pago.polla) {
                         bgBox = '#10b981'; // Al día (Verde Datacrédito)
                         titleText = 'Al día (Aporte + Polla)';
                     } else if (pago.aporte) {
@@ -416,13 +419,19 @@ async function cargarMatrizPagos() {
                     const pago = u.pagos_meses[m];
                     let cellContent = '<span style="color: #cbd5e1;">❌</span>';
                     let cellBg = '';
+                    let titleInfo = `${u.nombre} - ${MESES[m]}`;
 
-                    const montoTexto = pago.monto_aporte > 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #059669;">$${Math.round(pago.monto_aporte/1000)}k</span>` : '';
-
-                    if (pago.aporte && pago.polla) {
+                    if (pago.tiene_ajuste) {
+                        const montoFormated = pago.monto_aporte !== 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #ea580c;">$${Math.round(pago.monto_aporte/1000)}k</span>` : '';
+                        cellContent = `⚠️${montoFormated}`;
+                        cellBg = 'background: rgba(249, 115, 22, 0.15); border: 1px solid #fdba74;';
+                        titleInfo += `\n⚠️ Ajuste/Descuento: ${pago.motivo_ajuste || "Sin detalle"}`;
+                    } else if (pago.aporte && pago.polla) {
+                        const montoTexto = pago.monto_aporte > 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #059669;">$${Math.round(pago.monto_aporte/1000)}k</span>` : '';
                         cellContent = `🟢🎲${montoTexto}`;
                         cellBg = 'background: rgba(16, 185, 129, 0.12);';
                     } else if (pago.aporte) {
+                        const montoTexto = pago.monto_aporte > 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #059669;">$${Math.round(pago.monto_aporte/1000)}k</span>` : '';
                         cellContent = `🟢${montoTexto}`;
                         cellBg = 'background: rgba(16, 185, 129, 0.08);';
                     } else if (pago.polla) {
@@ -431,7 +440,7 @@ async function cargarMatrizPagos() {
                     }
 
                     trHtml += `
-                        <td onclick="togglePagoMesModal(${u.usuario_id}, '${u.nombre}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${u.nombre} - ${MESES[m]} (Clic para gestionar o editar cuota)" style="padding: 8px 4px; text-align: center; font-size: 0.95rem; cursor: pointer; ${cellBg} transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+                        <td onclick="togglePagoMesModal(${u.usuario_id}, '${u.nombre}', ${m}, '${MESES[m]}', ${pago.aporte ? 'true' : 'false'}, ${pago.polla ? 'true' : 'false'}, ${pago.monto_aporte || u.ahorro_mensual || 0})" title="${titleInfo} (Clic para gestionar o editar cuota)" style="padding: 8px 4px; text-align: center; font-size: 0.95rem; cursor: pointer; ${cellBg} transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
                             ${cellContent}
                         </td>
                     `;
