@@ -411,6 +411,46 @@ body::before {
     40%, 60% { transform: translate3d(6px, 0, 0); }
 }
 
+.app-logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 16px;
+    border-radius: 999px;
+    margin-bottom: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.piggy-brand-logo {
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 2px 8px rgba(247, 37, 133, 0.5));
+}
+
+.brand-title-badge {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #e2e8f0;
+}
+
+/* Animación del cerdito saludando */
+.waving-paw {
+    transform-origin: 360px 280px;
+    animation: waveHand 2.2s infinite ease-in-out;
+}
+
+@keyframes waveHand {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(-18deg); }
+    40% { transform: rotate(12deg); }
+    60% { transform: rotate(-14deg); }
+    80% { transform: rotate(8deg); }
+}
+
 .piggy-badge-glow {
     position: relative;
     display: flex;
