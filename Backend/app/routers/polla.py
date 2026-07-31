@@ -55,40 +55,17 @@ def fetch_medellin_result(draw_date: date) -> dict:
 
 def get_or_fetch_last_result(db: Session) -> ResultadoLoteria | None:
     """
-    Devuelve el último resultado disponible.
-    Si no hay nada en DB, intenta traer el del mes pasado (último viernes) desde la API y lo guarda.
+    Sincroniza y devuelve el último resultado del último viernes disponible.
     """
+    sync_today_lottery_if_needed(db)
+    
     ultimo = (
         db.query(ResultadoLoteria)
         .filter(ResultadoLoteria.slug == "medellin")
         .order_by(ResultadoLoteria.date.desc())
         .first()
     )
-    if ultimo:
-        return ultimo
-
-    # Fallback: mes pasado
-    today = date.today()
-    y, m = prev_month_year_month(today)
-    draw_date = last_friday_of_month(y, m)
-
-    try:
-        med = fetch_medellin_result(draw_date)
-    except Exception:
-        return None
-
-    nuevo = ResultadoLoteria(
-        slug="medellin",
-        lottery="MEDELLIN",
-        date=draw_date,
-        result=med["result"],
-        series=med.get("series"),
-        fetched_at=datetime.now(),
-    )
-    db.add(nuevo)
-    db.commit()
-    db.refresh(nuevo)
-    return nuevo
+    return ultimo
 
 @router.get("/polla/estado/{usuario_id}")
 def estado_polla(usuario_id: int, db: Session = Depends(get_db)):
