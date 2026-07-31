@@ -192,22 +192,42 @@
 .mov-admin .monto { font-weight: 800; text-align: right; color: var(--color-mis-ahorros); font-size: 1.1rem; }
 
 @media (max-width: 768px) {
-    .admin-grid { grid-template-columns: 1fr; }
-    .resumen-grid { grid-template-columns: 1fr; }
+    .header-dashboard { 
+        position: static !important; 
+        margin-bottom: 20px; 
+    }
+    .admin-grid { grid-template-columns: 1fr; gap: 12px; }
+    .resumen-grid { grid-template-columns: 1fr; gap: 10px; }
     .historial-admin, .mov-admin { grid-template-columns: 1fr; gap: 8px; }
-    .mov-admin { padding: 15px; }
-    .mov-admin .monto { text-align: left; margin-top: 4px; font-size: 1.15rem; }
+    .mov-admin { padding: 14px; }
+    .mov-admin .monto { text-align: left; margin-top: 4px; font-size: 1.1rem; }
     .historial-admin { display: none; }
     
-    /* Scroll táctil horizontal fluido para tablas en celulares */
+    /* Scroll táctil horizontal fluido y limpio para tablas en celulares */
     div[style*="overflow-x: auto"] {
-        -webkit-overflow-scrolling: touch;
+        -webkit-overflow-scrolling: touch !important;
         border-radius: 12px;
         margin-left: -5px;
         margin-right: -5px;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.03);
     }
     
-    table {
-        min-width: 750px !important;
+    /* Asegurar min-width óptimo para evitar texto o celdas aplastadas */
+    #tablaHabitoPagos {
+        min-width: 850px !important;
+    }
+    #tablaMatrizAdmin {
+        min-width: 900px !important;
+    }
+    
+    /* Adaptar botones de acciones */
+    .acciones {
+        flex-direction: column;
+        width: 100%;
+    }
+    .acciones button {
+        width: 100% !important;
+        text-align: center;
+        justify-content: center;
     }
 }
