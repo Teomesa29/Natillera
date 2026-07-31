@@ -658,6 +658,37 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
 
+        // ✅ Registrar Ponerse al Día (+ $10.000 COP para saldar el descuento del mes)
+        const btnPonerseAlDia = document.getElementById("btnPonerseAlDia");
+        if (btnPonerseAlDia) {
+            btnPonerseAlDia.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const usuarioId = Number(select.value);
+                btnPonerseAlDia.disabled = true;
+
+                try {
+                    const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_ajuste`, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            usuario_id: usuarioId,
+                            tipo: "Abono Ahorro",
+                            monto: 10000,
+                            descripcion: "Ponerse al dia (saldar cuota)"
+                        })
+                    });
+                    await Promise.all([
+                        cargarUsuario(usuarioId),
+                        cargarMatrizPagos()
+                    ]);
+                    mostrarMensaje(`✅ ${r?.mensaje || "Abono de +$10.000 registrado (cuota al día)"}`, false);
+                } catch (err) {
+                    mostrarMensaje(`❌ ${err.message}`, true);
+                } finally {
+                    btnPonerseAlDia.disabled = false;
+                }
+            });
+        }
+
         // ✅ Registrar Aporte (POST)
         btnAporte.addEventListener("click", async (e) => {
             e.preventDefault();
