@@ -44,6 +44,7 @@ function activarUIAdmin() {
     const btnMontos = document.getElementById("btnAdminMontos");
     const btnPrestamo = document.getElementById("btnAdminPrestamo");
     const btnCrearUsuarios = document.getElementById("btnCrearUsuarios");
+    const cardFondoGlobal = document.getElementById("fondo_total_natillera");
 
     if (rol === "admin") {
         if (btnMontos) {
@@ -58,10 +59,12 @@ function activarUIAdmin() {
             btnCrearUsuarios.style.display = "inline-flex";
             btnCrearUsuarios.onclick = () => window.location.href = "../pages/crear-usuarios.html";
         }
+        if (cardFondoGlobal) cardFondoGlobal.style.display = "block";
     } else {
         if (btnMontos) btnMontos.style.display = "none";
         if (btnPrestamo) btnPrestamo.style.display = "none";
         if (btnCrearUsuarios) btnCrearUsuarios.style.display = "none";
+        if (cardFondoGlobal) cardFondoGlobal.style.display = "none";
     }
 }
 
@@ -90,11 +93,85 @@ function parseMesDescripcion(desc) {
 let dashAporteChart = null;
 let dashPollaChart = null;
 
+function renderMatrizPersonal(movs) {
+    const body = document.getElementById("bodyMatrizPersonal");
+    if (!body) return;
+
+    const currentYear = new Date().getFullYear();
+    const mesesEstado = Array.from({ length: 12 }, () => ({
+        aporte: false,
+        polla: false,
+        tieneAjuste: false,
+        motivoAjuste: "",
+        montoAporte: 0
+    }));
+
+    for (const m of (movs || [])) {
+        const p = parseMesDescripcion(m.descripcion);
+        if (p && p.year === currentYear && p.mesIndex >= 0 && p.mesIndex < 12) {
+            const tipoLower = String(m.tipo || "").toLowerCase();
+            const descLower = String(m.descripcion || "").toLowerCase();
+
+            if (tipoLower.includes("descuento") || tipoLower.includes("penalizac") || tipoLower.includes("ajuste") || descLower.includes("descuento") || descLower.includes("penalizac") || descLower.includes("mora")) {
+                mesesEstado[p.mesIndex].tieneAjuste = true;
+                mesesEstado[p.mesIndex].motivoAjuste = m.descripcion || m.tipo;
+                mesesEstado[p.mesIndex].montoAporte += Number(m.monto || 0);
+            } else if (tipoLower.includes("aporte")) {
+                mesesEstado[p.mesIndex].aporte = true;
+                mesesEstado[p.mesIndex].montoAporte += Number(m.monto || 0);
+            } else if (tipoLower.includes("polla")) {
+                mesesEstado[p.mesIndex].polla = true;
+            }
+        }
+    }
+
+    let trHtml = '<tr style="border-bottom: 1px solid #f1f5f9;">';
+    for (let m = 0; m < 12; m++) {
+        const estado = mesesEstado[m];
+        let cellContent = '<span style="color: #cbd5e1;">❌</span>';
+        let cellBg = '';
+        let titleInfo = `Mes de ${MESES[m]}`;
+
+        if (estado.tieneAjuste) {
+            const montoFormated = estado.montoAporte !== 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #ea580c;">$${Math.round(estado.montoAporte/1000)}k</span>` : '';
+            cellContent = `⚠️${montoFormated}`;
+            cellBg = 'background: rgba(249, 115, 22, 0.15); border: 1px solid #fdba74;';
+            titleInfo += `\n⚠️ Ajuste/Descuento: ${estado.motivoAjuste || "Sin detalle"}`;
+        } else if (estado.aporte && estado.polla) {
+            const montoTexto = estado.montoAporte > 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #059669;">$${Math.round(estado.montoAporte/1000)}k</span>` : '';
+            cellContent = `🟢🎲${montoTexto}`;
+            cellBg = 'background: rgba(16, 185, 129, 0.12);';
+            titleInfo += `\nAporte y Polla al día`;
+        } else if (estado.aporte) {
+            const montoTexto = estado.montoAporte > 0 ? `<br><span style="font-size: 0.72rem; font-weight: 700; color: #059669;">$${Math.round(estado.montoAporte/1000)}k</span>` : '';
+            cellContent = `🟢${montoTexto}`;
+            cellBg = 'background: rgba(16, 185, 129, 0.08);';
+            titleInfo += `\nAporte al día (Polla pendiente)`;
+        } else if (estado.polla) {
+            cellContent = `🎲`;
+            cellBg = 'background: rgba(236, 72, 153, 0.08);';
+            titleInfo += `\nPolla pagada (Aporte pendiente)`;
+        }
+
+        trHtml += `
+            <td title="${titleInfo}" style="padding: 12px 6px; text-align: center; font-size: 0.95rem; ${cellBg}">
+                ${cellContent}
+            </td>
+        `;
+    }
+    trHtml += '</tr>';
+
+    body.innerHTML = trHtml;
+}
+
 function renderDashboardCharts(movs) {
+    const listMovs = Array.isArray(movs) ? movs : [];
+    renderMatrizPersonal(listMovs);
+
     const aportados = new Set();
     const pollas = new Set();
 
-    for (const m of (movs || [])) {
+    for (const m of listMovs) {
         if (String(m.tipo || "").toLowerCase().includes("aporte")) {
             const p = parseMesDescripcion(m.descripcion);
             if (p) aportados.add(`${p.year}-${p.mesIndex}`);
