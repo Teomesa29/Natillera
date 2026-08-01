@@ -269,20 +269,17 @@ animate();
                 ctxPiggy.drawImage(video, 0, 0, canvasPiggy.width, canvasPiggy.height);
                 const frame = ctxPiggy.getImageData(0, 0, canvasPiggy.width, canvasPiggy.height);
                 const data = frame.data;
-                const len = data.length / 4;
+                const len = data.length;
 
-                for (let i = 0; i < len; i++) {
-                    const r = data[i * 4 + 0];
-                    const g = data[i * 4 + 1];
-                    const b = data[i * 4 + 2];
+                // Optimización ultra rápida iterando de 4 en 4 bytes
+                for (let i = 0; i < len; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
 
-                    // Fondo verde fosforescente puro: G es dominante absoluto sobre R y B, y G es muy brillante (>120)
-                    if (g > 100 && g > r * 1.35 && g > b * 1.35) {
-                        data[i * 4 + 3] = 0; // Transparente 100% (Solo quita el verde fosforescente del fondo)
-                    } else if (g > 80 && g > r * 1.15 && g > b * 1.15) {
-                        // Anti-aliasing en bordes
-                        const alpha = 1 - ((g - Math.max(r, b)) / 100);
-                        data[i * 4 + 3] = Math.max(0, Math.min(255, Math.floor(alpha * 255)));
+                    // Si la componente verde es muy brillante y dominante, hacer transparente
+                    if (g > 95 && g > r * 1.3 && g > b * 1.3) {
+                        data[i + 3] = 0;
                     }
                 }
                 ctxPiggy.putImageData(frame, 0, 0);
