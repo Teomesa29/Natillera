@@ -344,7 +344,6 @@ body::before {
     width: 80%;
     max-width: 450px;
     filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5)) drop-shadow(0 0 30px rgba(59, 132, 246, 0.4));
-    mix-blend-mode: screen;
     animation: floatImage 6s ease-in-out infinite;
     z-index: 2;
 }

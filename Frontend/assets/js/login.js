@@ -247,8 +247,66 @@ function animate() {
 
 animate();
 
-// Asegurar reproducción fluida del video
-const videoPiggy = document.getElementById('videoPiggy');
-if (videoPiggy) {
-    videoPiggy.play().catch(e => console.log("Autoplay:", e));
-}
+// =========================================================================
+// CHROMA KEY ENGINE EN TIEMPO REAL (EXTRACCIÓN DE FONDO VERDE DE CERDITO.MP4)
+// =========================================================================
+(function initChromaKey() {
+    const video = document.getElementById('videoPiggy');
+    const canvasPiggy = document.getElementById('canvasPiggy');
+
+    if (!video || !canvasPiggy) return;
+
+    const ctxPiggy = canvasPiggy.getContext('2d', { willReadFrequently: true });
+
+    function processFrame() {
+        if (!video.paused && !video.ended) {
+            if (canvasPiggy.width !== video.videoWidth && video.videoWidth > 0) {
+                canvasPiggy.width = video.videoWidth;
+                canvasPiggy.height = video.videoHeight;
+            }
+
+            if (canvasPiggy.width > 0) {
+                ctxPiggy.drawImage(video, 0, 0, canvasPiggy.width, canvasPiggy.height);
+                const frame = ctxPiggy.getImageData(0, 0, canvasPiggy.width, canvasPiggy.height);
+                const data = frame.data;
+                const len = data.length / 4;
+
+                for (let i = 0; i < len; i++) {
+                    const r = data[i * 4 + 0];
+                    const g = data[i * 4 + 1];
+                    const b = data[i * 4 + 2];
+
+                    // Fondo verde fosforescente puro: G es dominante absoluto sobre R y B, y G es muy brillante (>120)
+                    if (g > 100 && g > r * 1.35 && g > b * 1.35) {
+                        data[i * 4 + 3] = 0; // Transparente 100% (Solo quita el verde fosforescente del fondo)
+                    } else if (g > 80 && g > r * 1.15 && g > b * 1.15) {
+                        // Anti-aliasing en bordes
+                        const alpha = 1 - ((g - Math.max(r, b)) / 100);
+                        data[i * 4 + 3] = Math.max(0, Math.min(255, Math.floor(alpha * 255)));
+                    }
+                }
+                ctxPiggy.putImageData(frame, 0, 0);
+            }
+        }
+        requestAnimationFrame(processFrame);
+    }
+
+    const startPlay = () => {
+        video.play().then(() => {
+            processFrame();
+        }).catch(err => {
+            console.log("Autoplay:", err);
+        });
+    };
+
+    video.addEventListener('play', () => {
+        processFrame();
+    });
+
+    video.addEventListener('canplay', startPlay);
+    video.addEventListener('loadeddata', startPlay);
+
+    if (video.readyState >= 2) {
+        startPlay();
+    }
+})();
