@@ -247,63 +247,8 @@ function animate() {
 
 animate();
 
-// =========================================================================
-// CHROMA KEY ENGINE EN TIEMPO REAL (EXTRACCIÓN DE FONDO VERDE DE CERDITO.MP4)
-// =========================================================================
-(function initChromaKey() {
-    const video = document.getElementById('videoPiggy');
-    const canvasPiggy = document.getElementById('canvasPiggy');
-
-    if (!video || !canvasPiggy) return;
-
-    const ctxPiggy = canvasPiggy.getContext('2d', { willReadFrequently: true });
-
-    function processFrame() {
-        if (!video.paused && !video.ended) {
-            if (canvasPiggy.width !== video.videoWidth && video.videoWidth > 0) {
-                canvasPiggy.width = video.videoWidth;
-                canvasPiggy.height = video.videoHeight;
-            }
-
-            if (canvasPiggy.width > 0) {
-                ctxPiggy.drawImage(video, 0, 0, canvasPiggy.width, canvasPiggy.height);
-                const frame = ctxPiggy.getImageData(0, 0, canvasPiggy.width, canvasPiggy.height);
-                const data = frame.data;
-                const len = data.length;
-
-                // Optimización ultra rápida iterando de 4 en 4 bytes
-                for (let i = 0; i < len; i += 4) {
-                    const r = data[i];
-                    const g = data[i + 1];
-                    const b = data[i + 2];
-
-                    // Si la componente verde es muy brillante y dominante, hacer transparente
-                    if (g > 95 && g > r * 1.3 && g > b * 1.3) {
-                        data[i + 3] = 0;
-                    }
-                }
-                ctxPiggy.putImageData(frame, 0, 0);
-            }
-        }
-        requestAnimationFrame(processFrame);
-    }
-
-    const startPlay = () => {
-        video.play().then(() => {
-            processFrame();
-        }).catch(err => {
-            console.log("Autoplay:", err);
-        });
-    };
-
-    video.addEventListener('play', () => {
-        processFrame();
-    });
-
-    video.addEventListener('canplay', startPlay);
-    video.addEventListener('loadeddata', startPlay);
-
-    if (video.readyState >= 2) {
-        startPlay();
-    }
-})();
+// Reproducción automática del video transparente en 60 FPS
+const videoPiggy = document.getElementById('videoPiggy');
+if (videoPiggy) {
+    videoPiggy.play().catch(e => console.log("Autoplay:", e));
+}
