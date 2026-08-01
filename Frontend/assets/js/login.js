@@ -276,13 +276,10 @@ animate();
                     const g = data[i * 4 + 1];
                     const b = data[i * 4 + 2];
 
-                    // Detección avanzada de tono verde de la pantalla cromática
-                    // Un píxel se considera verde si la componente verde es significativamente mayor que roja y azul
-                    // Detección de fondo verde o fondo removido (negro/oscuro)
-                    if ((g > 50 && g > r * 1.1 && g > b * 1.1) || (r < 15 && g < 15 && b < 15)) {
+                    // Remover únicamente el fondo verde residual si queda alguno
+                    if (g > 55 && g > r * 1.1 && g > b * 1.1) {
                         data[i * 4 + 3] = 0; // Transparente 100%
-                    } else if (g > 40 && g > r * 1.02 && g > b * 1.02) {
-                        // Suavizado anti-aliasing en bordes
+                    } else if (g > 45 && g > r * 1.03 && g > b * 1.03) {
                         const alphaRatio = 1 - ((g - (r + b) / 2) / 100);
                         data[i * 4 + 3] = Math.max(0, Math.min(255, Math.floor(alphaRatio * 255)));
                     }
@@ -297,11 +294,19 @@ animate();
         processFrame();
     });
 
-    video.addEventListener('loadeddata', () => {
-        if (!video.paused) processFrame();
-    });
+    // Intentar reproducir automáticamente
+    const startPlay = () => {
+        video.play().then(() => {
+            processFrame();
+        }).catch(err => {
+            console.log("Autoplay bloqueado:", err);
+        });
+    };
 
-    if (!video.paused) {
-        processFrame();
+    video.addEventListener('canplay', startPlay);
+    video.addEventListener('loadeddata', startPlay);
+
+    if (video.readyState >= 2) {
+        startPlay();
     }
 })();
