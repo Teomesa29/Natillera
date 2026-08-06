@@ -822,16 +822,18 @@ async function guardarMontoCuotaPersonalizado() {
     cerrarModalPagoMes();
 
     try {
-        const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_ajuste`, {
+        const r = await apiFetch(`/api/admin/modificar_pago_mes`, {
             method: "POST",
             body: JSON.stringify({
                 usuario_id: usuarioId,
-                tipo: "Aporte Personalizado",
-                monto: nuevoMonto,
-                descripcion: `Aporte (${nombreMes} ${anio})`
+                mes: nombreMes,
+                anio,
+                tipo: "aporte",
+                accion: "actualizar_monto",
+                monto: nuevoMonto
             })
         });
-        mostrarMensaje(`✅ Cuota de ${nombreMes} actualizada a ${formatearMoneda(nuevoMonto)}`, false);
+        mostrarMensaje(`✅ ${r.mensaje || "Cuota actualizada correctamente"}`, false);
         await Promise.all([
             cargarMatrizPagos(),
             cargarUsuario(usuarioId)

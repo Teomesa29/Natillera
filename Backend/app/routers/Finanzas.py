@@ -352,6 +352,38 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
             db.commit()
             return {"mensaje": f"Cuota Aporte de {mes_nombre} eliminada (se conserva la Polla si existía)"}
         return {"mensaje": "No se encontró registro de cuota aporte para eliminar en este mes"}
+    elif accion == "actualizar_monto":
+        nuevo_monto = int(payload.get("monto", 0))
+        # Buscar todos los movimientos de aporte del mes (excluyendo polla)
+        movs_aporte = [m for m in movs if "polla" not in (m.tipo or "").lower() and "polla" not in (m.descripcion or "").lower()]
+        
+        monto_actual = sum(int(m.monto or 0) for m in movs_aporte)
+        diferencia = nuevo_monto - monto_actual
+
+        if movs_aporte:
+            # Si existen movimientos, actualizamos el primero con el monto total deseado y eliminamos los extra
+            movs_aporte[0].monto = nuevo_monto
+            movs_aporte[0].tipo = "Aporte Mensual"
+            movs_aporte[0].descripcion = f"Aporte mensual registrado ({mes_nombre} {anio})"
+            for extra in movs_aporte[1:]:
+                db.delete(extra)
+        else:
+            # Si no existía, se crea un movimiento con el monto especificado
+            mov = Movimiento(
+                usuario_id=usuario_id,
+                tipo="Aporte Mensual",
+                monto=nuevo_monto,
+                fecha=datetime.now(),
+                categoria="ingreso",
+                descripcion=f"Aporte mensual registrado ({mes_nombre} {anio})"
+            )
+            db.add(mov)
+
+        # Ajustar el total ahorrado acumulado en base a la diferencia de este mes
+        ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) + diferencia))
+        ahorro.ultima_actualizacion = datetime.now()
+        db.commit()
+        return {"mensaje": f"Cuota de {mes_nombre} actualizada a ${nuevo_monto:,} COP"}
     else: # registrar
         if not mov_encontrado:
             monto = int(ahorro.ahorro_mensual or 0) if tipo_pago == "aporte" else 10000
