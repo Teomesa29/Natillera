@@ -354,7 +354,7 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
                     parsed_m = parse_mes_desde_descripcion(m.descripcion or "")
                     if parsed_m:
                         mes_i, _ = parsed_m
-                        if MESES_ES[mes_i].lower() == mes_nombre_clean.lower():
+                        if mes_nombre_clean.lower() in MESES_ES[mes_i].lower():
                             movs_a_borrar.append(m)
                     elif mes_nombre_clean.lower() in desc:
                         movs_a_borrar.append(m)
@@ -690,6 +690,10 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
                 for usr_db in usuarios:
                     u_polla_2 = str(usr_db.polla)[-2:].zfill(2) if usr_db.polla is not None else ""
                     if u_polla_2 == res_2:
+                        # Poner en 0 los meses de este ciclo ya que el pozo se entregó
+                        for i in range(m_idx + 1):
+                            if pozo_por_mes.get(i, 0) > 0:
+                                pozo_por_mes[i] = 0.0
                         acumulado_polla = 0.0
                         break
 
