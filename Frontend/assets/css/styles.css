@@ -97,7 +97,7 @@ h1 {
     flex-direction: column;
     justify-content: space-between;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 /* Borde superior sutil brillante */
@@ -108,6 +108,8 @@ h1 {
     height: 4px;
     opacity: 0.85;
     transition: var(--transition-pro);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
 }
 
 .tarjeta:hover {
