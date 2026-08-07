@@ -788,6 +788,7 @@ function togglePagoMesModal(usuarioId, nombreSocio, mesIdx, nombreMes, tieneApor
     const btnRegAporte = document.getElementById("btnModalRegAporte");
     const btnRegPolla = document.getElementById("btnModalRegPolla");
     const btnDelAporte = document.getElementById("btnModalDelAporte");
+    const btnDelPolla = document.getElementById("btnModalDelPolla");
 
     if (titulo) titulo.textContent = `${nombreSocio}`;
     if (sub) sub.textContent = `Mes de ${nombreMes} 2026`;
@@ -796,7 +797,8 @@ function togglePagoMesModal(usuarioId, nombreSocio, mesIdx, nombreMes, tieneApor
     // Control inteligente de opciones según el estado actual del pago
     if (btnRegAporte) btnRegAporte.style.display = tieneAporte ? "none" : "flex";
     if (btnRegPolla) btnRegPolla.style.display = tienePolla ? "none" : "flex";
-    if (btnDelAporte) btnDelAporte.style.display = (tieneAporte || tienePolla) ? "flex" : "none";
+    if (btnDelAporte) btnDelAporte.style.display = tieneAporte ? "flex" : "none";
+    if (btnDelPolla) btnDelPolla.style.display = tienePolla ? "flex" : "none";
 
     if (modal) {
         modal.style.display = "flex";

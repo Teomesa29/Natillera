@@ -343,15 +343,24 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
             break
 
     if accion == "eliminar":
-        movs_a_borrar = [m for m in movs if "polla" not in (m.tipo or "").lower() and "polla" not in (m.descripcion or "").lower()]
-        if movs_a_borrar:
-            for m in movs_a_borrar:
-                if (m.monto or 0) > 0 and ("aporte" in (m.tipo or "").lower() or "aporte" in (m.descripcion or "").lower()):
-                    ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) - m.monto))
-                db.delete(m)
-            db.commit()
-            return {"mensaje": f"Cuota Aporte de {mes_nombre} eliminada (se conserva la Polla si existía)"}
-        return {"mensaje": "No se encontró registro de cuota aporte para eliminar en este mes"}
+        if tipo_pago == "polla":
+            movs_a_borrar = [m for m in movs if "polla" in (m.tipo or "").lower() or "polla" in (m.descripcion or "").lower()]
+            if movs_a_borrar:
+                for m in movs_a_borrar:
+                    db.delete(m)
+                db.commit()
+                return {"mensaje": f"Pago de Polla de {mes_nombre} eliminado"}
+            return {"mensaje": "No se encontró registro de pago de polla para eliminar en este mes"}
+        else:
+            movs_a_borrar = [m for m in movs if "polla" not in (m.tipo or "").lower() and "polla" not in (m.descripcion or "").lower()]
+            if movs_a_borrar:
+                for m in movs_a_borrar:
+                    if (m.monto or 0) > 0 and ("aporte" in (m.tipo or "").lower() or "aporte" in (m.descripcion or "").lower()):
+                        ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) - m.monto))
+                    db.delete(m)
+                db.commit()
+                return {"mensaje": f"Cuota Aporte de {mes_nombre} eliminada (se conserva la Polla si existía)"}
+            return {"mensaje": "No se encontró registro de cuota aporte para eliminar en este mes"}
     elif accion == "actualizar_monto":
         nuevo_monto = int(payload.get("monto", 0))
         # Buscar todos los movimientos de aporte del mes (excluyendo polla)
