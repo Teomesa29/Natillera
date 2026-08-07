@@ -671,16 +671,14 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
     res_por_mes = {(r.date.year, r.date.month - 1): r for r in resultados}
 
     pozo_por_mes = {}
-    acumulado_polla = 0.0
 
     for m_idx in range(12):
         key = (anio, m_idx)
         # Sumar el total recaudado de pollas en este mes por todos los socios
         total_polla_mes = sum(usr["pagos_meses"][m_idx]["monto_polla"] for usr in matriz)
-        acumulado_polla += total_polla_mes
         
-        # Guardar pozo acumulado actual de este mes
-        pozo_por_mes[m_idx] = acumulado_polla
+        # Guardar total recaudado en el mes (no acumulado histórico)
+        pozo_por_mes[m_idx] = total_polla_mes
 
         # Si hubo ganador de lotería en este mes, el pozo se reinicia para el siguiente mes
         if key in res_por_mes:
@@ -694,7 +692,6 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
                         for i in range(m_idx + 1):
                             if pozo_por_mes.get(i, 0) > 0:
                                 pozo_por_mes[i] = 0.0
-                        acumulado_polla = 0.0
                         break
 
     return {

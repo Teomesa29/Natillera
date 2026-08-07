@@ -434,7 +434,7 @@ async function cargarMatrizPagos() {
                     const montoK = Math.round((pozoMeses[m] || 0) / 1000);
                     footH += `<td style="padding: 10px 2px; text-align: center; font-weight: 800; color: #be185d;">$${montoK}k</td>`;
                 }
-                const pozoUltimo = pozoMeses.length > 0 ? pozoMeses[pozoMeses.length - 1] : 0;
+                const pozoUltimo = pozoMeses.reduce((acc, val) => acc + (val || 0), 0);
                 footH += `
                         <td style="padding: 12px; text-align: center; color: #be185d; font-weight: 800;">
                             ${formatearMoneda(pozoUltimo)}
