@@ -325,22 +325,19 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
     validar_usuario(db, usuario_id)
     ahorro = obtener_o_crear_ahorro(db, usuario_id)
 
-    mes_desc_pattern = f"({mes_nombre} {anio})"
-
-    # Buscar movimientos existentes de ese tipo y mes
-    movs = db.query(Movimiento).filter(
-        Movimiento.usuario_id == usuario_id,
-        Movimiento.descripcion.like(f"%{mes_desc_pattern}%")
+    mes_nombre_clean = str(mes_nombre or "").strip()
+    
+    # Buscar todos los movimientos del usuario
+    movs_user = db.query(Movimiento).filter(
+        Movimiento.usuario_id == usuario_id
     ).all()
 
-    mov_encontrado = None
-    for m in movs:
-        if tipo_pago == "aporte" and "aporte" in (m.tipo or "").lower():
-            mov_encontrado = m
-            break
-        elif tipo_pago == "polla" and "polla" in (m.tipo or "").lower():
-            mov_encontrado = m
-            break
+    # Filtrar por mes_nombre y año en la descripción
+    movs = []
+    for m in movs_user:
+        desc = (m.descripcion or "").lower()
+        if mes_nombre_clean.lower() in desc and str(anio) in desc:
+            movs.append(m)
 
     if accion == "eliminar":
         if tipo_pago == "polla":
