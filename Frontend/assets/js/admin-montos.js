@@ -9,6 +9,21 @@ function authHeaders() {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+window.choicesInstances = { usuario: null, mesAporte: null, mesPolla: null };
+
+function refreshChoices(elId, key, search = false) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    if (window.choicesInstances[key]) {
+        try { window.choicesInstances[key].destroy(); } catch(e){}
+    }
+    window.choicesInstances[key] = new Choices(el, {
+        searchEnabled: search,
+        itemSelectText: '',
+        shouldSort: false
+    });
+}
+
 async function apiFetch(path, options = {}) {
     const res = await fetch(`${API}${path}`, {
         ...options,
@@ -99,6 +114,13 @@ function llenarSelectMesesInteligente(movs) {
     const selectPolla = document.getElementById("selectMesPolla");
     if (!selectAporte || !selectPolla) return;
 
+    if (window.choicesInstances?.mesAporte) {
+        try { window.choicesInstances.mesAporte.destroy(); } catch(e){}
+    }
+    if (window.choicesInstances?.mesPolla) {
+        try { window.choicesInstances.mesPolla.destroy(); } catch(e){}
+    }
+
     selectAporte.innerHTML = "";
     selectPolla.innerHTML = "";
 
@@ -150,6 +172,9 @@ function llenarSelectMesesInteligente(movs) {
     if (selectPolla.options.length === 0) {
         selectPolla.innerHTML = `<option value="" disabled selected>Todo pagado 🎉</option>`;
     }
+
+    refreshChoices("selectMesAporte", "mesAporte", false);
+    refreshChoices("selectMesPolla", "mesPolla", false);
 
     renderCharts(totalMeses - faltanAportes, faltanAportes, totalMeses - faltanPollas, faltanPollas);
     return totalMeses - faltanAportes; // Para cálculos
@@ -240,6 +265,10 @@ async function cargarUsuarios() {
     const select = document.getElementById("selectUsuario");
     listaUsuariosGlobal = await apiFetch("/api/usuarios");
 
+    if (window.choicesInstances?.usuario) {
+        try { window.choicesInstances.usuario.destroy(); } catch(e){}
+    }
+
     select.innerHTML = "";
     listaUsuariosGlobal.forEach(u => {
         const opt = document.createElement("option");
@@ -248,6 +277,7 @@ async function cargarUsuarios() {
         select.appendChild(opt);
     });
 
+    refreshChoices("selectUsuario", "usuario", true);
     return listaUsuariosGlobal;
 }
 
