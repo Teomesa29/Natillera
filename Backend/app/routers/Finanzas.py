@@ -7,7 +7,7 @@ import re
 
 from app.schemas.schemas import PrestamoCreate, AhorroCreate, AporteMensualPayload, AjusteManualPayload
 from app.database import SessionLocal, get_db
-from app.models.models import Prestamo, Movimiento, Ahorro, Usuario
+from app.models.models import Prestamo, Movimiento, Ahorro, Usuario, ResultadoLoteria
 
 
 router = APIRouter(prefix="/api", tags=["Finanzas"])
