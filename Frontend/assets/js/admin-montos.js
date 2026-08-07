@@ -330,9 +330,14 @@ async function cargarMatrizPagos() {
         let globalPollasCount = 0;
         const totalEsperadoGlobal = usuarios.length * 12;
 
+        const pollasPorMes = Array(12).fill(0);
+        const aportesPorMes = Array(12).fill(0);
+
         // 1. Rellenar Hábito de Pago (Bloques de colores estilo Datacrédito)
         if (bodyHabito) {
+            let totalPollasAcumuladas = 0;
             bodyHabito.innerHTML = usuarios.map(u => {
+                let userPollasCount = 0;
                 let trHtml = `
                     <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                         <td class="col-socio-body" style="padding: 12px; font-weight: 700; color: var(--text-main); background: white;">
@@ -345,8 +350,15 @@ async function cargarMatrizPagos() {
                     let bgBox = '#e2e8f0'; // Pendiente / Sin información
                     let titleText = 'Sin pago registrado';
 
-                    if (pago.aporte) globalAportesCount++;
-                    if (pago.polla) globalPollasCount++;
+                    if (pago.aporte) {
+                        globalAportesCount++;
+                        aportesPorMes[m]++;
+                    }
+                    if (pago.polla) {
+                        globalPollasCount++;
+                        pollasPorMes[m]++;
+                        userPollasCount++;
+                    }
 
                     if (pago.tiene_ajuste) {
                         bgBox = '#f97316'; // Ajuste / Descuento (Naranja)
@@ -369,6 +381,8 @@ async function cargarMatrizPagos() {
                         </td>
                     `;
                 }
+
+                totalPollasAcumuladas += userPollasCount;
 
                 // Detectar meses pendientes para recordatorio
                 const mesActualIdx = new Date().getMonth();
@@ -394,6 +408,9 @@ async function cargarMatrizPagos() {
                 }
 
                 trHtml += `
+                        <td style="padding: 12px; text-align: center; font-weight: 800; color: #be185d;">
+                            🎲 ${userPollasCount} / 12
+                        </td>
                         <td style="padding: 12px; text-align: right; font-weight: 800; color: #10b981;">
                             ${formatearMoneda(u.total_ahorrado)}
                         </td>
@@ -404,6 +421,29 @@ async function cargarMatrizPagos() {
                 `;
                 return trHtml;
             }).join("");
+
+            // Renderizar footer de Hábito de Pagos con totales por mes en eje X
+            const footHabito = document.getElementById("footHabitoPagos");
+            if (footHabito) {
+                let footH = `
+                    <tr style="color: var(--text-main); font-size: 0.82rem;">
+                        <td style="padding: 12px; text-align: left; position: sticky; left: 0; background: #f8fafc; z-index: 1;">POLLAS MES (EJE X)</td>
+                `;
+                for (let m = 0; m < 12; m++) {
+                    footH += `<td style="padding: 10px 2px; text-align: center; font-weight: 800; color: #be185d;">🎲 ${pollasPorMes[m]}</td>`;
+                }
+                footH += `
+                        <td style="padding: 12px; text-align: center; color: #be185d; font-weight: 800;">
+                            🎲 ${totalPollasAcumuladas}
+                        </td>
+                        <td style="padding: 12px; text-align: right; color: #4f46e5; font-weight: 800;">
+                            ${formatearMoneda(data.gran_total_acumulado)}
+                        </td>
+                        <td></td>
+                    </tr>
+                `;
+                footHabito.innerHTML = footH;
+            }
         }
 
         // 2. Rellenar Matriz General de Pagos (Original con emojis 🟢 🎲 ❌ y totales por mes)

@@ -114,7 +114,7 @@ def aplicar_interes_mensual_automatico():
 # =========================================================
 def parse_mes_desde_descripcion(desc: str):
     m = re.search(
-        r"\((Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+(\d{4})\)",
+        r"(?:^|\(|\s)(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+(\d{4})(?:\)|\s|$)",
         desc or "",
         re.I
     )
@@ -341,7 +341,13 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
 
     if accion == "eliminar":
         if tipo_pago == "polla":
-            movs_a_borrar = [m for m in movs if "polla" in (m.tipo or "").lower() or "polla" in (m.descripcion or "").lower()]
+            # Buscar cualquier movimiento de polla del usuario que coincida con el mes indicado
+            movs_a_borrar = [
+                m for m in movs_user
+                if ("polla" in (m.tipo or "").lower() or "polla" in (m.descripcion or "").lower())
+                and mes_nombre_clean.lower() in (m.descripcion or "").lower()
+            ]
+
             if movs_a_borrar:
                 for m in movs_a_borrar:
                     db.delete(m)
