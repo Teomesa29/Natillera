@@ -35,6 +35,7 @@ def get_most_recent_last_friday(today: date) -> date:
     return last_friday_of_month(prev_year, prev_month)
 
 
+
 def fetch_medellin_result(draw_date: date) -> dict:
     url = f"{API_EXTERNA}/{draw_date.isoformat()}"
     r = requests.get(url, timeout=20)
@@ -67,7 +68,6 @@ def sync_medellin_if_last_friday(db: Session) -> dict:
     today = date.today()
     draw_date = get_most_recent_last_friday(today)
 
-    # Verificar si ya existe
     exists = (
         db.query(ResultadoLoteria)
         .filter(
@@ -85,31 +85,32 @@ def sync_medellin_if_last_friday(db: Session) -> dict:
             "result": exists.result
         }
 
-    # Intentar traerlo
     try:
         med = fetch_medellin_result(draw_date)
+        if med and med.get("result"):
+            nuevo = ResultadoLoteria(
+                slug="medellin",
+                lottery="MEDELLIN",
+                date=draw_date,
+                result=med["result"],
+                series=med.get("series"),
+                fetched_at=datetime.now(),
+            )
+            db.add(nuevo)
+            db.commit()
+            db.refresh(nuevo)
+            return {
+                "ran": True,
+                "mensaje": "Resultado sincronizado correctamente",
+                "date": nuevo.date.isoformat(),
+                "result": nuevo.result
+            }
     except Exception as e:
-        return {
-            "ran": False,
-            "mensaje": f"Error consultando API: {str(e)}"
-        }
-
-    nuevo = ResultadoLoteria(
-        slug="medellin",
-        lottery="MEDELLIN",
-        date=draw_date,
-        result=med["result"],
-        series=med.get("series"),
-        fetched_at=datetime.now(),
-    )
-
-    db.add(nuevo)
-    db.commit()
-    db.refresh(nuevo)
+        print(f"[SyncPolla] No se pudo obtener resultado para la fecha del último viernes {draw_date.isoformat()}: {e}")
 
     return {
-        "ran": True,
-        "mensaje": "Resultado sincronizado correctamente",
-        "date": nuevo.date.isoformat(),
-        "result": nuevo.result
+        "ran": False,
+        "mensaje": f"No se pudo sincronizar el resultado con la API externa para la fecha exacta del último viernes ({draw_date.isoformat()})."
     }
+
+

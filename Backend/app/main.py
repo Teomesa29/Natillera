@@ -77,12 +77,23 @@ def job_sync_polla():
         db.close()
 
 
+# Intento principal la noche del sorteo (11:30 PM)
 scheduler.add_job(
     job_sync_polla,
-    CronTrigger(hour=22, minute=10),
-    id="sync_polla_medellin",
+    CronTrigger(hour=23, minute=30),
+    id="sync_polla_medellin_2330",
     replace_existing=True
 )
+
+# Reintentos continuos cada 4 horas durante todo el día por si la API se demora en publicar
+scheduler.add_job(
+    job_sync_polla,
+    CronTrigger(hour="*/4", minute=15),
+    id="sync_polla_medellin_interval",
+    replace_existing=True
+)
+
+
 
 
 # =========================================================

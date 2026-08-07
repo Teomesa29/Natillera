@@ -47,8 +47,7 @@ def fetch_medellin_result(draw_date: date) -> dict:
         "slug": med.get("slug") or "medellin",
         "date": med.get("date") or draw_date.isoformat(),
         "result": str(med.get("result") or ""),
-        "series": str(med.get("series") or "") if med.get("series") is not None else None,
-    }
+from app.services.polla_scheduler import last_friday_of_month, sync_medellin_if_last_friday, fetch_medellin_result
 
 def task_sync_today_lottery():
     """
@@ -56,37 +55,14 @@ def task_sync_today_lottery():
     """
     db = SessionLocal()
     try:
-        today = date.today()
-        ultimo_viernes_mes_actual = last_friday_of_month(today.year, today.month)
-        
-        if today >= ultimo_viernes_mes_actual:
-            draw_date = ultimo_viernes_mes_actual
-        else:
-            prev_y, prev_m = prev_month_year_month(today)
-            draw_date = last_friday_of_month(prev_y, prev_m)
-        
-        existente = db.query(ResultadoLoteria).filter(
-            ResultadoLoteria.slug == "medellin",
-            ResultadoLoteria.date == draw_date
-        ).first()
-
-        if not existente:
-            med = fetch_medellin_result(draw_date)
-            if med and med.get("result"):
-                nuevo = ResultadoLoteria(
-                    slug="medellin",
-                    lottery="MEDELLIN",
-                    date=draw_date,
-                    result=med["result"],
-                    series=med.get("series"),
-                    fetched_at=datetime.now(),
-                )
-                db.add(nuevo)
-                db.commit()
+        r = sync_medellin_if_last_friday(db)
+        print("[PollaBackgroundTask]", r)
     except Exception as e:
-        print(f"[Segundo Plano] Sorteo ({date.today()}) aún no disponible en API externa: {e}")
+        print(f"[Segundo Plano] Error al sincronizar lotería: {e}")
     finally:
         db.close()
+
+
 
 
 def get_or_fetch_last_result(db: Session, background_tasks: BackgroundTasks | None = None) -> ResultadoLoteria | None:
