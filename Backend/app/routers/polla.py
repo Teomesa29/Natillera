@@ -8,45 +8,7 @@ from app.models.models import Usuario, ResultadoLoteria
 
 router = APIRouter(prefix="/api", tags=["Polla"])
 
-API_EXTERNA = "https://api-resultadosloterias.com/api/results"
 
-def last_friday_of_month(year: int, month: int) -> date:
-    if month == 12:
-        last_day = date(year, 12, 31)
-    else:
-        last_day = date(year, month + 1, 1) - timedelta(days=1)
-
-    offset = (last_day.weekday() - 4) % 7
-    return last_day - timedelta(days=offset)
-
-def prev_month_year_month(d: date) -> tuple[int, int]:
-    if d.month == 1:
-        return d.year - 1, 12
-    return d.year, d.month - 1
-
-def fetch_medellin_result(draw_date: date) -> dict:
-    url = f"{API_EXTERNA}/{draw_date.isoformat()}"
-    r = requests.get(url, timeout=3)
-    r.raise_for_status()
-    res_json = r.json()
-
-    if isinstance(res_json, dict):
-        data = res_json.get("data", [])
-    else:
-        data = res_json
-
-    if not isinstance(data, list):
-        raise RuntimeError("Respuesta inesperada de API externa")
-
-    med = next((x for x in data if x.get("slug") == "medellin" or x.get("lottery") == "MEDELLIN"), None)
-    if not med:
-        raise RuntimeError(f"No hay resultado MEDELLIN para {draw_date.isoformat()}")
-
-    return {
-        "lottery": med.get("lottery") or "MEDELLIN",
-        "slug": med.get("slug") or "medellin",
-        "date": med.get("date") or draw_date.isoformat(),
-        "result": str(med.get("result") or ""),
 from app.services.polla_scheduler import last_friday_of_month, sync_medellin_if_last_friday, fetch_medellin_result
 
 def task_sync_today_lottery():
