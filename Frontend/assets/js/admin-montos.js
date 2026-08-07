@@ -422,19 +422,22 @@ async function cargarMatrizPagos() {
                 return trHtml;
             }).join("");
 
-            // Renderizar footer de Hábito de Pagos con totales por mes en eje X
+            // Renderizar footer de Hábito de Pagos con pozo en dinero por mes en eje X
             const footHabito = document.getElementById("footHabitoPagos");
             if (footHabito) {
+                const pozoMeses = data.pozo_polla_por_mes || [];
                 let footH = `
                     <tr style="color: var(--text-main); font-size: 0.82rem;">
-                        <td style="padding: 12px; text-align: left; position: sticky; left: 0; background: #f8fafc; z-index: 1;">POLLAS MES (EJE X)</td>
+                        <td style="padding: 12px; text-align: left; position: sticky; left: 0; background: #f8fafc; z-index: 1;">POZO POLLA (EJE X)</td>
                 `;
                 for (let m = 0; m < 12; m++) {
-                    footH += `<td style="padding: 10px 2px; text-align: center; font-weight: 800; color: #be185d;">🎲 ${pollasPorMes[m]}</td>`;
+                    const montoK = Math.round((pozoMeses[m] || 0) / 1000);
+                    footH += `<td style="padding: 10px 2px; text-align: center; font-weight: 800; color: #be185d;">$${montoK}k</td>`;
                 }
+                const pozoUltimo = pozoMeses.length > 0 ? pozoMeses[pozoMeses.length - 1] : 0;
                 footH += `
                         <td style="padding: 12px; text-align: center; color: #be185d; font-weight: 800;">
-                            🎲 ${totalPollasAcumuladas}
+                            ${formatearMoneda(pozoUltimo)}
                         </td>
                         <td style="padding: 12px; text-align: right; color: #4f46e5; font-weight: 800;">
                             ${formatearMoneda(data.gran_total_acumulado)}

@@ -341,18 +341,29 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
 
     if accion == "eliminar":
         if tipo_pago == "polla":
-            # Buscar cualquier movimiento de polla del usuario que coincida con el mes indicado
-            movs_a_borrar = [
-                m for m in movs_user
-                if ("polla" in (m.tipo or "").lower() or "polla" in (m.descripcion or "").lower())
-                and mes_nombre_clean.lower() in (m.descripcion or "").lower()
-            ]
+            # Buscar cualquier movimiento de polla del usuario que corresponda a este mes
+            movs_a_borrar = []
+            for m in movs_user:
+                t = (m.tipo or "").lower()
+                cat = (m.categoria or "").lower()
+                desc = (m.descripcion or "").lower()
+
+                es_polla = ("polla" in t or "polla" in cat or "polla" in desc)
+                if es_polla:
+                    # Verificar si coincide con el mes seleccionado o su parsed mes_idx
+                    parsed_m = parse_mes_desde_descripcion(m.descripcion or "")
+                    if parsed_m:
+                        mes_i, _ = parsed_m
+                        if MESES_ES[mes_i].lower() == mes_nombre_clean.lower():
+                            movs_a_borrar.append(m)
+                    elif mes_nombre_clean.lower() in desc:
+                        movs_a_borrar.append(m)
 
             if movs_a_borrar:
                 for m in movs_a_borrar:
                     db.delete(m)
                 db.commit()
-                return {"mensaje": f"Pago de Polla de {mes_nombre} eliminado"}
+                return {"mensaje": f"Pago de Polla de {mes_nombre} eliminado correctamente"}
             return {"mensaje": "No se encontró registro de pago de polla para eliminar en este mes"}
         else:
             movs_a_borrar = [m for m in movs if "polla" not in (m.tipo or "").lower() and "polla" not in (m.descripcion or "").lower()]
@@ -655,11 +666,39 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
             "observaciones": u.observaciones
         })
 
+    # Calcular pozo acumulado de polla mes a mes (considerando ganadores de lotería)
+    resultados = db.query(ResultadoLoteria).filter(ResultadoLoteria.slug == "medellin").order_by(ResultadoLoteria.date.asc()).all()
+    res_por_mes = {(r.date.year, r.date.month - 1): r for r in resultados}
+
+    pozo_por_mes = {}
+    acumulado_polla = 0.0
+
+    for m_idx in range(12):
+        key = (anio, m_idx)
+        # Sumar el total recaudado de pollas en este mes por todos los socios
+        total_polla_mes = sum(usr["pagos_meses"][m_idx]["monto_polla"] for usr in matriz)
+        acumulado_polla += total_polla_mes
+        
+        # Guardar pozo acumulado actual de este mes
+        pozo_por_mes[m_idx] = acumulado_polla
+
+        # Si hubo ganador de lotería en este mes, el pozo se reinicia para el siguiente mes
+        if key in res_por_mes:
+            draw = res_por_mes[key]
+            res_2 = str(draw.result)[-2:].zfill(2) if draw.result else None
+            if res_2:
+                for usr_db in usuarios:
+                    u_polla_2 = str(usr_db.polla)[-2:].zfill(2) if usr_db.polla is not None else ""
+                    if u_polla_2 == res_2:
+                        acumulado_polla = 0.0
+                        break
+
     return {
         "anio": anio,
         "meses": MESES_ES,
         "usuarios": matriz,
         "totales_por_mes": [totales_por_mes[i] for i in range(12)],
+        "pozo_polla_por_mes": [pozo_por_mes[i] for i in range(12)],
         "gran_total_acumulado": gran_total_acumulado
     }
 
