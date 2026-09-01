@@ -22,17 +22,18 @@ def calcular_acumulado_polla(db: Session) -> float:
     movs = db.query(Movimiento).filter(Movimiento.tipo == "Pago Polla").all()
     
     # Organizar pagos por (mes_index, año)
-    meses_nombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    meses_nombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre"]
     
     pagos_por_mes = {} # {(año, mes_index): monto_total}
     for m in movs:
         match = re.search(r'\((Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+(\d{4})\)', m.descripcion or "")
         if match:
             mes_nombre = match.group(1)
-            anio = int(match.group(2))
-            mes_index = meses_nombres.index(mes_nombre)
-            key = (anio, mes_index)
-            pagos_por_mes[key] = pagos_por_mes.get(key, 0) + (m.monto or 0)
+            if mes_nombre in meses_nombres:
+                anio = int(match.group(2))
+                mes_index = meses_nombres.index(mes_nombre)
+                key = (anio, mes_index)
+                pagos_por_mes[key] = pagos_por_mes.get(key, 0) + (m.monto or 0)
 
     # 2. Obtener todos los resultados de lotería ordenados
     resultados = db.query(ResultadoLoteria).filter(ResultadoLoteria.slug == "medellin").order_by(ResultadoLoteria.date.asc()).all()
@@ -46,13 +47,13 @@ def calcular_acumulado_polla(db: Session) -> float:
     # 4. Simular mes a mes desde el inicio (año 2026) hasta el mes actual
     now = datetime.now()
     anio_actual = now.year
-    mes_actual = now.month - 1
+    mes_actual = min(now.month - 1, 10)
     
     acumulado = 0.0
     
     for anio in range(2026, anio_actual + 1):
         start_month = 0
-        end_month = mes_actual if anio == anio_actual else 11
+        end_month = mes_actual if anio == anio_actual else 10
         for mes_idx in range(start_month, end_month + 1):
             key = (anio, mes_idx)
             monto_mes = pagos_por_mes.get(key, 0)

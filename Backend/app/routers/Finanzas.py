@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api", tags=["Finanzas"])
 
 MESES_ES = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre"
 ]
 
 
@@ -189,8 +189,8 @@ def siguiente_mes_texto_desde_movimientos(db: Session, usuario_id: int) -> str:
     if max_mes_index == -1:
         return f"Enero {year_actual}"
 
-    siguiente_mes_idx = (max_mes_index + 1) % 12
-    siguiente_year = max_year + ((max_mes_index + 1) // 12)
+    siguiente_mes_idx = (max_mes_index + 1) % 11
+    siguiente_year = max_year + ((max_mes_index + 1) // 11)
 
     return f"{MESES_ES[siguiente_mes_idx]} {siguiente_year}"
 
@@ -408,26 +408,55 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
         db.commit()
         return {"mensaje": f"Cuota de {mes_nombre} actualizada a ${nuevo_monto:,} COP"}
     else: # registrar
-        if not mov_encontrado:
-            monto = int(ahorro.ahorro_mensual or 0) if tipo_pago == "aporte" else 10000
-            if tipo_pago == "aporte":
+        aporte_existente = any(
+            "polla" not in (m.tipo or "").lower() and "polla" not in (m.descripcion or "").lower() and ("aporte" in (m.tipo or "").lower() or "aporte" in (m.descripcion or "").lower())
+            for m in movs
+        )
+        polla_existente = any(
+            "polla" in (m.tipo or "").lower() or "polla" in (m.descripcion or "").lower() or "polla" in (m.categoria or "").lower()
+            for m in movs
+        )
+
+        mensajes = []
+
+        if tipo_pago in ["aporte", "ambos"]:
+            if not aporte_existente:
+                monto = int(ahorro.ahorro_mensual or 0)
+                if monto <= 0:
+                    monto = 150000
                 ahorro.total_ahorrado = int((ahorro.total_ahorrado or 0) + monto)
-            
-            tipo_mov = "Aporte Mensual" if tipo_pago == "aporte" else "Pago Polla"
-            desc = f"Aporte mensual registrado ({mes_nombre} {anio})" if tipo_pago == "aporte" else f"Pago de Polla registrado ({mes_nombre} {anio})"
-            
-            mov = Movimiento(
-                usuario_id=usuario_id,
-                tipo=tipo_mov,
-                monto=monto,
-                fecha=datetime.now(),
-                categoria="ingreso",
-                descripcion=desc
-            )
-            db.add(mov)
-            db.commit()
-            return {"mensaje": f"Pago de {tipo_pago} de {mes_nombre} registrado"}
-        return {"mensaje": "El pago ya estaba registrado"}
+                mov = Movimiento(
+                    usuario_id=usuario_id,
+                    tipo="Aporte Mensual",
+                    monto=monto,
+                    fecha=datetime.now(),
+                    categoria="ingreso",
+                    descripcion=f"Aporte mensual registrado ({mes_nombre_clean} {anio})"
+                )
+                db.add(mov)
+                mensajes.append(f"Cuota Aporte de {mes_nombre_clean} registrada")
+            else:
+                mensajes.append(f"Cuota Aporte ya registrada en {mes_nombre_clean}")
+
+        if tipo_pago in ["polla", "ambos"]:
+            if not polla_existente:
+                monto_polla = 10000
+                mov_p = Movimiento(
+                    usuario_id=usuario_id,
+                    tipo="Pago Polla",
+                    monto=monto_polla,
+                    fecha=datetime.now(),
+                    categoria="ingreso",
+                    descripcion=f"Pago de Polla registrado ({mes_nombre_clean} {anio})"
+                )
+                db.add(mov_p)
+                mensajes.append(f"Pago Polla de {mes_nombre_clean} registrado")
+            else:
+                mensajes.append(f"Pago Polla ya registrado en {mes_nombre_clean}")
+
+        ahorro.ultima_actualizacion = datetime.now()
+        db.commit()
+        return {"mensaje": " y ".join(mensajes) if mensajes else "Registro completado"}
 
 
 # =========================================================
@@ -608,7 +637,7 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
         movs_por_usuario.setdefault(m.usuario_id, []).append(m)
 
     matriz = []
-    totales_por_mes = {m: 0 for m in range(12)}
+    totales_por_mes = {m: 0 for m in range(11)}
     gran_total_acumulado = 0
 
     for u in usuarios:
@@ -616,7 +645,7 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
         movs = movs_por_usuario.get(u.id, [])
 
         pagos_meses = {}
-        for m in range(12):
+        for m in range(11):
             pagos_meses[m] = {
                 "aporte": False,
                 "monto_aporte": 0,
@@ -631,7 +660,7 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
             parsed = parse_mes_desde_descripcion(mov.descripcion or "")
             if parsed:
                 mes_idx, y = parsed
-                if y == anio and 0 <= mes_idx <= 11:
+                if y == anio and 0 <= mes_idx <= 10:
                     tipo_lower = (mov.tipo or "").lower()
                     desc_lower = (mov.descripcion or "").lower()
 
@@ -648,7 +677,7 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
                         pagos_meses[mes_idx]["polla"] = True
                         pagos_meses[mes_idx]["monto_polla"] += int(mov.monto or 0)
 
-        for m_idx in range(12):
+        for m_idx in range(11):
             totales_por_mes[m_idx] += pagos_meses[m_idx]["total_mes"]
 
         total_usuario = int(ahorro.total_ahorrado) if (ahorro and ahorro.total_ahorrado) else 0
@@ -672,7 +701,7 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
 
     pozo_por_mes = {}
 
-    for m_idx in range(12):
+    for m_idx in range(11):
         key = (anio, m_idx)
         # Sumar el total recaudado de pollas en este mes por todos los socios
         total_polla_mes = sum(usr["pagos_meses"][m_idx]["monto_polla"] for usr in matriz)
@@ -698,8 +727,8 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
         "anio": anio,
         "meses": MESES_ES,
         "usuarios": matriz,
-        "totales_por_mes": [totales_por_mes[i] for i in range(12)],
-        "pozo_polla_por_mes": [pozo_por_mes[i] for i in range(12)],
+        "totales_por_mes": [totales_por_mes[i] for i in range(11)],
+        "pozo_polla_por_mes": [pozo_por_mes[i] for i in range(11)],
         "gran_total_acumulado": gran_total_acumulado
     }
 

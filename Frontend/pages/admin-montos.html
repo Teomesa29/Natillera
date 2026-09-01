@@ -162,7 +162,6 @@
                             <th style="padding: 10px 2px; text-align: center; width: 38px;">SEP</th>
                             <th style="padding: 10px 2px; text-align: center; width: 38px;">OCT</th>
                             <th style="padding: 10px 2px; text-align: center; width: 38px;">NOV</th>
-                            <th style="padding: 10px 2px; text-align: center; width: 38px;">DIC</th>
                             <th style="padding: 10px 6px; text-align: center; background: #be185d; color: white; width: 70px;" title="Total de Polles pagadas en el año">POLLAS</th>
                             <th style="padding: 10px 8px; text-align: right; background: #64748b; color: white; width: 110px;">TOTAL AHORRO</th>
                             <th style="padding: 10px 8px; text-align: center; background: #64748b; color: white; width: 90px;">ACCIONAL</th>
@@ -205,7 +204,6 @@
                             <th style="padding: 10px 4px; text-align: center; width: 44px;">Sep</th>
                             <th style="padding: 10px 4px; text-align: center; width: 44px;">Oct</th>
                             <th style="padding: 10px 4px; text-align: center; width: 44px;">Nov</th>
-                            <th style="padding: 10px 4px; text-align: center; width: 44px;">Dic</th>
                             <th style="padding: 10px 8px; text-align: right; background: #e2e8f0; color: #1e293b; width: 110px;">TOTAL</th>
                         </tr>
                     </thead>
@@ -259,6 +257,10 @@
             </div>
 
             <div style="display: grid; gap: 10px; margin-top: 10px;">
+                <button id="btnModalRegAmbos" onclick="ejecutarAccionPagoMes('ambos', 'registrar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #10b981; background: #ecfdf5; font-weight: 700; color: #047857; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#d1fae5';" onmouseout="this.style.background='#ecfdf5';">
+                    <span>🟢🎲 Registrar Cuota + Polla (Ambos)</span>
+                    <span style="font-size: 1.1rem;">→</span>
+                </button>
                 <button id="btnModalRegAporte" onclick="ejecutarAccionPagoMes('aporte', 'registrar')" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; color: #0f172a; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#ecfdf5'; this.style.borderColor='#10b981'; this.style.color='#059669';" onmouseout="this.style.background='#f8fafc'; this.style.borderColor='#e2e8f0'; this.style.color='#0f172a';">
                     <span>🟢 Registrar Aporte Mensual</span>
                     <span style="font-size: 1.1rem;">→</span>

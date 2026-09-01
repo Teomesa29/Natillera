@@ -78,7 +78,7 @@ function setText(selector, text) {
     if (el) el.textContent = text;
 }
 
-const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre"];
 
 function parseMesDescripcion(desc) {
     const m = String(desc || "").match(/\((Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+(\d{4})\)/i);
@@ -98,7 +98,7 @@ function renderMatrizPersonal(movs, totalAhorradoUsuario = 0) {
     if (!body) return;
 
     const currentYear = new Date().getFullYear();
-    const mesesEstado = Array.from({ length: 12 }, () => ({
+    const mesesEstado = Array.from({ length: 11 }, () => ({
         aporte: false,
         polla: false,
         tieneAjuste: false,
@@ -108,7 +108,7 @@ function renderMatrizPersonal(movs, totalAhorradoUsuario = 0) {
 
     for (const m of (movs || [])) {
         const p = parseMesDescripcion(m.descripcion);
-        if (p && p.year === currentYear && p.mesIndex >= 0 && p.mesIndex < 12) {
+        if (p && p.year === currentYear && p.mesIndex >= 0 && p.mesIndex < 11) {
             const tipoLower = String(m.tipo || "").toLowerCase();
             const descLower = String(m.descripcion || "").toLowerCase();
 
@@ -128,7 +128,7 @@ function renderMatrizPersonal(movs, totalAhorradoUsuario = 0) {
     let trHtml = '<tr style="border-bottom: 1px solid #f1f5f9;">';
     let totalCalculado = 0;
 
-    for (let m = 0; m < 12; m++) {
+    for (let m = 0; m < 11; m++) {
         const estado = mesesEstado[m];
         let cellContent = '<span style="color: #cbd5e1;">❌</span>';
         let cellBg = '';
@@ -196,23 +196,23 @@ function renderDashboardCharts(movs, totalAhorradoUsuario = 0) {
     let pagadosAporte = 0;
     let pagadosPolla = 0;
     
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 11; i++) {
         const key = `${startYear}-${i}`;
         if (aportados.has(key)) pagadosAporte++;
         if (pollas.has(key)) pagadosPolla++;
     }
 
-    const pctAporte = Math.round((pagadosAporte / 12) * 100);
-    const pctPolla = Math.round((pagadosPolla / 12) * 100);
+    const pctAporte = Math.round((pagadosAporte / 11) * 100);
+    const pctPolla = Math.round((pagadosPolla / 11) * 100);
 
     const labelAporte = document.getElementById("aporteStatusLabel");
     const pctLabelAporte = document.getElementById("aporteStatusPct");
-    if (labelAporte) labelAporte.textContent = `${pagadosAporte} de 12 meses`;
+    if (labelAporte) labelAporte.textContent = `${pagadosAporte} de 11 meses`;
     if (pctLabelAporte) pctLabelAporte.textContent = `${pctAporte}% pagado`;
 
     const labelPolla = document.getElementById("pollaStatusLabel");
     const pctLabelPolla = document.getElementById("pollaStatusPct");
-    if (labelPolla) labelPolla.textContent = `${pagadosPolla} de 12 meses`;
+    if (labelPolla) labelPolla.textContent = `${pagadosPolla} de 11 meses`;
     if (pctLabelPolla) pctLabelPolla.textContent = `${pctPolla}% pagado`;
 
     const ctxAportes = document.getElementById("dashPieAportesCanvas");
@@ -225,7 +225,7 @@ function renderDashboardCharts(movs, totalAhorradoUsuario = 0) {
             data: {
                 labels: ['Pagado', 'Pendiente'],
                 datasets: [{
-                    data: [pagadosAporte, 12 - pagadosAporte],
+                    data: [pagadosAporte, Math.max(0, 11 - pagadosAporte)],
                     backgroundColor: ['#6366f1', '#e2e8f0'],
                     borderWidth: 0
                 }]
@@ -246,7 +246,7 @@ function renderDashboardCharts(movs, totalAhorradoUsuario = 0) {
             data: {
                 labels: ['Pagado', 'Pendiente'],
                 datasets: [{
-                    data: [pagadosPolla, 12 - pagadosPolla],
+                    data: [pagadosPolla, Math.max(0, 11 - pagadosPolla)],
                     backgroundColor: ['#ec4899', '#e2e8f0'],
                     borderWidth: 0
                 }]

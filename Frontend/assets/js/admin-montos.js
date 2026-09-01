@@ -51,7 +51,7 @@ function formatearMoneda(valor) {
     return `$${n.toLocaleString("es-CO")} COP`;
 }
 
-const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre"];
 
 function parseMesDescripcion(desc) {
     const m = String(desc || "").match(/\((Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+(\d{4})\)/i);
@@ -76,8 +76,8 @@ function ordenarMovimientosDesc(movs) {
         const pa = parseMesDescripcion(a.descripcion);
         const pb = parseMesDescripcion(b.descripcion);
         if (pa && pb) {
-            const va = pa.year * 12 + pa.mesIndex;
-            const vb = pb.year * 12 + pb.mesIndex;
+            const va = pa.year * 11 + pa.mesIndex;
+            const vb = pb.year * 11 + pb.mesIndex;
             return vb - va;
         }
         if (pa && !pb) return -1;
@@ -88,8 +88,8 @@ function ordenarMovimientosDesc(movs) {
 }
 
 function renderCharts(pagadosAporte, pendientesAporte, pagadosPolla, pendientesPolla) {
-    const totalAporte = (pagadosAporte + pendientesAporte) || 12;
-    const totalPolla = (pagadosPolla + pendientesPolla) || 12;
+    const totalAporte = (pagadosAporte + pendientesAporte) || 11;
+    const totalPolla = (pagadosPolla + pendientesPolla) || 11;
 
     const pctAporte = Math.round((pagadosAporte / totalAporte) * 100);
     const pctPolla = Math.round((pagadosPolla / totalPolla) * 100);
@@ -144,9 +144,9 @@ function llenarSelectMesesInteligente(movs) {
     
     let faltanAportes = 0;
     let faltanPollas = 0;
-    let totalMeses = 12;
+    let totalMeses = 11;
 
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 11; i++) {
         const key = `${startYear}-${i}`;
         
         if (!aportados.has(key)) {
@@ -351,17 +351,17 @@ async function cargarMatrizPagos() {
         const usuarios = data.usuarios || [];
 
         if (usuarios.length === 0) {
-            if (bodyHabito) bodyHabito.innerHTML = `<tr><td colspan="14" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay socios registrados.</td></tr>`;
-            if (bodyMatriz) bodyMatriz.innerHTML = `<tr><td colspan="14" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay socios registrados.</td></tr>`;
+            if (bodyHabito) bodyHabito.innerHTML = `<tr><td colspan="15" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay socios registrados.</td></tr>`;
+            if (bodyMatriz) bodyMatriz.innerHTML = `<tr><td colspan="13" style="text-align:center; padding: 20px; color: var(--text-muted);">No hay socios registrados.</td></tr>`;
             return;
         }
 
         let globalAportesCount = 0;
         let globalPollasCount = 0;
-        const totalEsperadoGlobal = usuarios.length * 12;
+        const totalEsperadoGlobal = usuarios.length * 11;
 
-        const pollasPorMes = Array(12).fill(0);
-        const aportesPorMes = Array(12).fill(0);
+        const pollasPorMes = Array(11).fill(0);
+        const aportesPorMes = Array(11).fill(0);
 
         // 1. Rellenar Hábito de Pago (Bloques de colores estilo Datacrédito)
         if (bodyHabito) {
@@ -375,7 +375,7 @@ async function cargarMatrizPagos() {
                         </td>
                 `;
 
-                for (let m = 0; m < 12; m++) {
+                for (let m = 0; m < 11; m++) {
                     const pago = u.pagos_meses[m];
                     let bgBox = '#e2e8f0'; // Pendiente / Sin información
                     let titleText = 'Sin pago registrado';
@@ -417,7 +417,7 @@ async function cargarMatrizPagos() {
                 // Detectar meses pendientes para recordatorio
                 const mesActualIdx = new Date().getMonth();
                 let tienePendiente = false;
-                for (let m = 0; m <= mesActualIdx; m++) {
+                for (let m = 0; m <= Math.min(mesActualIdx, 10); m++) {
                     if (!u.pagos_meses[m].aporte || !u.pagos_meses[m].polla) {
                         tienePendiente = true;
                         break;
@@ -439,7 +439,7 @@ async function cargarMatrizPagos() {
 
                 trHtml += `
                         <td style="padding: 12px; text-align: center; font-weight: 800; color: #be185d;">
-                            🎲 ${userPollasCount} / 12
+                            🎲 ${userPollasCount} / 11
                         </td>
                         <td style="padding: 12px; text-align: right; font-weight: 800; color: #10b981;">
                             ${formatearMoneda(u.total_ahorrado)}
@@ -460,7 +460,7 @@ async function cargarMatrizPagos() {
                     <tr style="color: var(--text-main); font-size: 0.82rem;">
                         <td style="padding: 12px; text-align: left; position: sticky; left: 0; background: #f8fafc; z-index: 1;">POZO POLLA (EJE X)</td>
                 `;
-                for (let m = 0; m < 12; m++) {
+                for (let m = 0; m < 11; m++) {
                     const montoK = Math.round((pozoMeses[m] || 0) / 1000);
                     footH += `<td style="padding: 10px 2px; text-align: center; font-weight: 800; color: #be185d;">$${montoK}k</td>`;
                 }
@@ -489,7 +489,7 @@ async function cargarMatrizPagos() {
                         </td>
                 `;
 
-                for (let m = 0; m < 12; m++) {
+                for (let m = 0; m < 11; m++) {
                     const pago = u.pagos_meses[m];
                     let cellContent = '<span style="color: #cbd5e1;">❌</span>';
                     let cellBg = '';
@@ -537,7 +537,7 @@ async function cargarMatrizPagos() {
                     <td style="padding: 14px 12px; text-align: left; position: sticky; left: 0; background: #f8fafc; z-index: 1;">TOTALES MES</td>
             `;
 
-            for (let m = 0; m < 12; m++) {
+            for (let m = 0; m < 11; m++) {
                 footHtml += `<td style="padding: 10px 4px; text-align: center; font-size: 0.75rem; color: var(--text-muted);">$${Math.round((totalesMes[m] || 0)/1000)}k</td>`;
             }
 
@@ -858,6 +858,7 @@ function togglePagoMesModal(usuarioId, nombreSocio, mesIdx, nombreMes, tieneApor
     const sub = document.getElementById("modalPagoMesSub");
     const inputMonto = document.getElementById("inputMontoCuotaModal");
 
+    const btnRegAmbos = document.getElementById("btnModalRegAmbos");
     const btnRegAporte = document.getElementById("btnModalRegAporte");
     const btnRegPolla = document.getElementById("btnModalRegPolla");
     const btnDelAporte = document.getElementById("btnModalDelAporte");
@@ -868,6 +869,7 @@ function togglePagoMesModal(usuarioId, nombreSocio, mesIdx, nombreMes, tieneApor
     if (inputMonto) inputMonto.value = Number(montoActual || 0);
 
     // Control inteligente de opciones según el estado actual del pago
+    if (btnRegAmbos) btnRegAmbos.style.display = (!tieneAporte && !tienePolla) ? "flex" : "none";
     if (btnRegAporte) btnRegAporte.style.display = tieneAporte ? "none" : "flex";
     if (btnRegPolla) btnRegPolla.style.display = tienePolla ? "none" : "flex";
     if (btnDelAporte) btnDelAporte.style.display = tieneAporte ? "flex" : "none";
