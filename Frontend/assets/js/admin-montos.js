@@ -1,4 +1,4 @@
-const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+﻿const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 const API = window.API_BASE || localStorage.getItem("API_BASE") || (isLocal ? "http://127.0.0.1:8000" : "https://natillera.onrender.com");
 
 // Anti-recarga por submits accidentales
@@ -671,12 +671,25 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         }
 
+        // Helper para obtener el mes actualmente seleccionado en el panel
+        function obtenerMesSeleccionadoTag() {
+            const selectPolla = document.getElementById("selectMesPolla");
+            const selectAporte = document.getElementById("selectMesAporte");
+            const val = selectPolla?.value || selectAporte?.value || "";
+            if (val && val.includes("|")) {
+                const parts = val.split("|");
+                return ` (${parts[0]} ${parts[1]})`;
+            }
+            return "";
+        }
+
         // ✅ Registrar Penalización Fija por Mora (-$10.000)
         if (btnAplicarAjuste) {
             btnAplicarAjuste.addEventListener("click", async (e) => {
                 e.preventDefault();
                 const usuarioId = Number(select.value);
                 btnAplicarAjuste.disabled = true;
+                const tagMes = obtenerMesSeleccionadoTag();
 
                 try {
                     const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_ajuste`, {
@@ -685,7 +698,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             usuario_id: usuarioId,
                             tipo: "Penalización por Mora",
                             monto: -10000,
-                            descripcion: "Descuento por mora"
+                            descripcion: `Descuento por mora${tagMes}`
                         })
                     });
                     await Promise.all([
@@ -707,6 +720,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 e.preventDefault();
                 const usuarioId = Number(select.value);
                 btnAplicarDescuentoPolla.disabled = true;
+                const tagMes = obtenerMesSeleccionadoTag();
 
                 try {
                     const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_ajuste`, {
@@ -715,7 +729,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             usuario_id: usuarioId,
                             tipo: "Descuento por Polla",
                             monto: -10000,
-                            descripcion: "Descuento por polla ganada"
+                            descripcion: `Descuento por polla ganada${tagMes}`
                         })
                     });
                     await Promise.all([
@@ -738,6 +752,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 e.preventDefault();
                 const usuarioId = Number(select.value);
                 btnPonerseAlDia.disabled = true;
+                const tagMes = obtenerMesSeleccionadoTag();
 
                 try {
                     const r = await apiFetch(`/api/ahorros/${usuarioId}/registrar_ajuste`, {
@@ -746,7 +761,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             usuario_id: usuarioId,
                             tipo: "Abono Ahorro",
                             monto: 10000,
-                            descripcion: "Ponerse al dia (saldar cuota)"
+                            descripcion: `Ponerse al dia (saldar cuota)${tagMes}`
                         })
                     });
                     await Promise.all([
@@ -761,7 +776,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             });
         }
-
         // ✅ Registrar Aporte (POST)
         btnAporte.addEventListener("click", async (e) => {
             e.preventDefault();

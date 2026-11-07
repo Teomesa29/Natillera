@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+﻿from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -369,12 +369,12 @@ def modificar_pago_mes(payload: dict, db: Session = Depends(get_db)):
             movs_a_borrar = [m for m in movs if "polla" not in (m.tipo or "").lower() and "polla" not in (m.descripcion or "").lower()]
             if movs_a_borrar:
                 for m in movs_a_borrar:
-                    if (m.monto or 0) > 0 and ("aporte" in (m.tipo or "").lower() or "aporte" in (m.descripcion or "").lower()):
-                        ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) - m.monto))
+                    monto_val = int(m.monto or 0)
+                    ahorro.total_ahorrado = max(0, int((ahorro.total_ahorrado or 0) - monto_val))
                     db.delete(m)
                 db.commit()
-                return {"mensaje": f"Cuota Aporte de {mes_nombre} eliminada (se conserva la Polla si existía)"}
-            return {"mensaje": "No se encontró registro de cuota aporte para eliminar en este mes"}
+                return {"mensaje": f"Registros de {mes_nombre} eliminados y saldo actualizado (se conserva la Polla si existía)"}
+            return {"mensaje": "No se encontró registro para eliminar en este mes"}
     elif accion == "actualizar_monto":
         nuevo_monto = int(payload.get("monto", 0))
         # Buscar todos los movimientos de aporte del mes (excluyendo polla)
@@ -522,6 +522,12 @@ def crear_prestamo(payload: PrestamoCreate, db: Session = Depends(get_db)):
     )
 
     db.add(mov)
+
+    # Descontar el monto del préstamo del total ahorrado del socio
+    ahorro = obtener_o_crear_ahorro(db, payload.usuario_id)
+    ahorro.total_ahorrado = int((ahorro.total_ahorrado or 0) - int(payload.monto))
+    ahorro.ultima_actualizacion = datetime.now()
+
     db.commit()
 
     return {"mensaje": "Préstamo creado correctamente"}
@@ -653,7 +659,8 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
                 "monto_polla": 0,
                 "total_mes": 0,
                 "tiene_ajuste": False,
-                "motivo_ajuste": ""
+                "motivo_ajuste": "",
+                "neto_ajuste": 0
             }
 
         for mov in movs:
@@ -663,21 +670,41 @@ def obtener_matriz_pagos(anio: int = 2026, db: Session = Depends(get_db)):
                 if y == anio and 0 <= mes_idx <= 10:
                     tipo_lower = (mov.tipo or "").lower()
                     desc_lower = (mov.descripcion or "").lower()
+                    monto_val = int(mov.monto or 0)
 
-                    if "descuento" in tipo_lower or "penalizac" in tipo_lower or "ajuste" in tipo_lower or "descuento" in desc_lower or "penalizac" in desc_lower or "mora" in desc_lower:
-                        pagos_meses[mes_idx]["tiene_ajuste"] = True
-                        pagos_meses[mes_idx]["motivo_ajuste"] = mov.descripcion or mov.tipo
-                        pagos_meses[mes_idx]["monto_aporte"] += int(mov.monto or 0)
-                        pagos_meses[mes_idx]["total_mes"] += int(mov.monto or 0)
-                    elif "aporte" in tipo_lower:
-                        pagos_meses[mes_idx]["aporte"] = True
-                        pagos_meses[mes_idx]["monto_aporte"] += int(mov.monto or 0)
-                        pagos_meses[mes_idx]["total_mes"] += int(mov.monto or 0)
-                    elif "polla" in tipo_lower:
+                    es_polla = ("polla" in tipo_lower or "polla" in desc_lower)
+                    es_ajuste = (
+                        "descuento" in tipo_lower or "descuento" in desc_lower or
+                        "penalizac" in tipo_lower or "penalizac" in desc_lower or
+                        "mora" in tipo_lower or "mora" in desc_lower or
+                        "ajuste" in tipo_lower or "ajuste" in desc_lower or
+                        "abono" in tipo_lower or "abono" in desc_lower or
+                        "ponerse al dia" in desc_lower or "saldar" in desc_lower
+                    )
+                    es_aporte = ("aporte" in tipo_lower or "aporte" in desc_lower) and not es_polla and not es_ajuste
+
+                    if es_polla:
                         pagos_meses[mes_idx]["polla"] = True
-                        pagos_meses[mes_idx]["monto_polla"] += int(mov.monto or 0)
+                        pagos_meses[mes_idx]["monto_polla"] += monto_val
+                    elif es_ajuste:
+                        pagos_meses[mes_idx]["neto_ajuste"] += monto_val
+                        pagos_meses[mes_idx]["monto_aporte"] += monto_val
+                        pagos_meses[mes_idx]["total_mes"] += monto_val
+                        if monto_val < 0:
+                            pagos_meses[mes_idx]["motivo_ajuste"] = mov.descripcion or mov.tipo
+                    elif es_aporte:
+                        pagos_meses[mes_idx]["aporte"] = True
+                        pagos_meses[mes_idx]["monto_aporte"] += monto_val
+                        pagos_meses[mes_idx]["total_mes"] += monto_val
 
         for m_idx in range(11):
+            # Solo tiene_ajuste si hay un descuento o mora neto pendiente (< 0).
+            # Si el socio se puso al día (neto_ajuste >= 0), el ajuste fue compensado y el mes queda limpio.
+            if pagos_meses[m_idx]["neto_ajuste"] < 0:
+                pagos_meses[m_idx]["tiene_ajuste"] = True
+            else:
+                pagos_meses[m_idx]["tiene_ajuste"] = False
+
             totales_por_mes[m_idx] += pagos_meses[m_idx]["total_mes"]
 
         total_usuario = int(ahorro.total_ahorrado) if (ahorro and ahorro.total_ahorrado) else 0

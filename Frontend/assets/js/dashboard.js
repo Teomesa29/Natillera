@@ -1,4 +1,4 @@
-const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+﻿const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 const API = window.API_BASE || localStorage.getItem("API_BASE") || (isLocal ? "http://127.0.0.1:8000" : "https://natillera.onrender.com");
 
 function getUsuarioLocal() {
@@ -103,7 +103,8 @@ function renderMatrizPersonal(movs, totalAhorradoUsuario = 0) {
         polla: false,
         tieneAjuste: false,
         motivoAjuste: "",
-        montoAporte: 0
+        montoAporte: 0,
+        netoAjuste: 0
     }));
 
     for (const m of (movs || [])) {
@@ -111,18 +112,35 @@ function renderMatrizPersonal(movs, totalAhorradoUsuario = 0) {
         if (p && p.year === currentYear && p.mesIndex >= 0 && p.mesIndex < 11) {
             const tipoLower = String(m.tipo || "").toLowerCase();
             const descLower = String(m.descripcion || "").toLowerCase();
+            const monto = Number(m.monto || 0);
 
-            if (tipoLower.includes("descuento") || tipoLower.includes("penalizac") || tipoLower.includes("ajuste") || descLower.includes("descuento") || descLower.includes("penalizac") || descLower.includes("mora")) {
-                mesesEstado[p.mesIndex].tieneAjuste = true;
-                mesesEstado[p.mesIndex].motivoAjuste = m.descripcion || m.tipo;
-                mesesEstado[p.mesIndex].montoAporte += Number(m.monto || 0);
-            } else if (tipoLower.includes("aporte")) {
-                mesesEstado[p.mesIndex].aporte = true;
-                mesesEstado[p.mesIndex].montoAporte += Number(m.monto || 0);
-            } else if (tipoLower.includes("polla")) {
+            const esPolla = tipoLower.includes("polla") || descLower.includes("polla");
+            const esAjuste = (
+                tipoLower.includes("descuento") || descLower.includes("descuento") ||
+                tipoLower.includes("penalizac") || descLower.includes("penalizac") ||
+                tipoLower.includes("mora") || descLower.includes("mora") ||
+                tipoLower.includes("ajuste") || descLower.includes("ajuste") ||
+                tipoLower.includes("abono") || descLower.includes("abono") ||
+                descLower.includes("ponerse al dia") || descLower.includes("saldar")
+            );
+
+            if (esPolla) {
                 mesesEstado[p.mesIndex].polla = true;
+            } else if (esAjuste) {
+                mesesEstado[p.mesIndex].netoAjuste += monto;
+                mesesEstado[p.mesIndex].montoAporte += monto;
+                if (monto < 0) {
+                    mesesEstado[p.mesIndex].motivoAjuste = m.descripcion || m.tipo;
+                }
+            } else if (tipoLower.includes("aporte") || descLower.includes("aporte")) {
+                mesesEstado[p.mesIndex].aporte = true;
+                mesesEstado[p.mesIndex].montoAporte += monto;
             }
         }
+    }
+
+    for (let i = 0; i < 11; i++) {
+        mesesEstado[i].tieneAjuste = mesesEstado[i].netoAjuste < 0;
     }
 
     let trHtml = '<tr style="border-bottom: 1px solid #f1f5f9;">';
@@ -163,7 +181,7 @@ function renderMatrizPersonal(movs, totalAhorradoUsuario = 0) {
         `;
     }
 
-    const totalFinal = totalCalculado > 0 ? totalCalculado : Number(totalAhorradoUsuario || 0);
+    const totalFinal = (totalAhorradoUsuario !== undefined && totalAhorradoUsuario !== null && !isNaN(totalAhorradoUsuario)) ? Number(totalAhorradoUsuario) : totalCalculado;
 
     trHtml += `
         <td style="padding: 12px 6px; text-align: center; font-weight: 800; color: #10b981; font-size: 0.88rem; white-space: nowrap;">

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response
+﻿from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -40,6 +40,45 @@ app.include_router(dashboard_router)
 app.include_router(prestamos_router)
 app.include_router(polla_router)
 
+from datetime import datetime
+from app.models.models import Prestamo, Movimiento, Ahorro
+
+def sincronizar_prestamos_ahorros_historicos():
+    """
+    Sincroniza préstamos creados previamente cuyo monto no fue descontado
+    del total ahorrado del socio (por ejemplo el préstamo del usuario 5).
+    """
+    db = SessionLocal()
+    try:
+        prestamos = db.query(Prestamo).all()
+        for p in prestamos:
+            ahorro = db.query(Ahorro).filter(Ahorro.usuario_id == p.usuario_id).first()
+            if not ahorro:
+                continue
+
+            movs = db.query(Movimiento).filter(Movimiento.usuario_id == p.usuario_id).all()
+            aportes = sum(m.monto for m in movs if m.tipo in ["Aporte Mensual", "Interés Mensual", "Abono Ahorro"])
+            descuentos = sum(abs(m.monto) for m in movs if m.tipo == "Descuento Ahorro")
+            
+            tag = f"[prestamo_id:{p.id}]"
+            pagos_prestamo = sum(m.monto for m in movs if m.tipo == "Pago Préstamo" and tag in (m.descripcion or ""))
+
+            total_esperado_sin_prestamo = aportes - descuentos
+
+            if ahorro.total_ahorrado == total_esperado_sin_prestamo and (p.monto or 0) > 0:
+                print(f"[SYNC] Corrigiendo ahorro de usuario {p.usuario_id}: descontando préstamo #{p.id} de {p.monto}")
+                ahorro.total_ahorrado = max(0, total_esperado_sin_prestamo - int(p.monto or 0) + int(pagos_prestamo))
+                ahorro.ultima_actualizacion = datetime.now()
+                db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"[SYNC][ERROR] Error sincronizando préstamos con ahorros: {e}")
+    finally:
+        db.close()
+
+@app.on_event("startup")
+def on_startup():
+    sincronizar_prestamos_ahorros_historicos()
 
 @app.get("/")
 def root():

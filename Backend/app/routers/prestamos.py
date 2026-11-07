@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+﻿from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from app.database import get_db
-from app.models.models import Prestamo, Usuario, Movimiento
+from app.models.models import Prestamo, Usuario, Movimiento, Ahorro
 
 router = APIRouter(prefix="/api", tags=["prestamos"])
 
@@ -198,6 +198,24 @@ def registrar_pago(prestamo_id: int, monto: int = 0, db: Session = Depends(get_d
     if nuevo_saldo <= 0:
         prestamo.estado = "pagado"
 
+    prestamo.saldo = int(round(nuevo_saldo))
+    if prestamo.plazo and prestamo.plazo > 0 and total_original > 0:
+        cuota_teorica = total_original / float(prestamo.plazo)
+        if cuota_teorica > 0:
+            prestamo.cuotas_pagadas = min(prestamo.plazo, int(nuevo_total_pagado // cuota_teorica))
+
+    # Sumar la cuota pagada al total ahorrado del socio
+    # Si el préstamo incluye intereses, reintegramos al ahorro la proporción de capital
+    monto_abono_ahorro = int(monto)
+    if total_original > 0 and (prestamo.intereses or 0) > 0:
+        factor_capital = float(prestamo.monto or 0) / total_original
+        monto_abono_ahorro = int(round(monto * factor_capital))
+
+    ahorro = db.query(Ahorro).filter(Ahorro.usuario_id == prestamo.usuario_id).first()
+    if ahorro:
+        ahorro.total_ahorrado = int((ahorro.total_ahorrado or 0) + monto_abono_ahorro)
+        ahorro.ultima_actualizacion = datetime.now()
+
     db.commit()
 
     return {
@@ -234,12 +252,13 @@ def pagar_total(prestamo_id: int, db: Session = Depends(get_db)):
         db.commit()
         return {"mensaje": "Este préstamo ya quedó saldado", "prestamo_id": prestamo.id}
 
+    monto_a_pagar = int(round(saldo))
     tag = _tag_prestamo(prestamo.id)
 
     mov = Movimiento(
         usuario_id=prestamo.usuario_id,
         tipo="Pago Préstamo",
-        monto=int(round(saldo)),
+        monto=monto_a_pagar,
         fecha=datetime.now(),
         categoria="prestamo",
         descripcion=f"Pago total de préstamo {tag}"
@@ -247,6 +266,21 @@ def pagar_total(prestamo_id: int, db: Session = Depends(get_db)):
     db.add(mov)
 
     prestamo.estado = "pagado"
+    prestamo.saldo = 0
+    if prestamo.plazo:
+        prestamo.cuotas_pagadas = prestamo.plazo
+
+    # Sumar el saldo restante de capital al total ahorrado del socio
+    monto_abono_ahorro = monto_a_pagar
+    if total_original > 0 and (prestamo.intereses or 0) > 0:
+        factor_capital = float(prestamo.monto or 0) / total_original
+        monto_abono_ahorro = int(round(monto_a_pagar * factor_capital))
+
+    ahorro = db.query(Ahorro).filter(Ahorro.usuario_id == prestamo.usuario_id).first()
+    if ahorro:
+        ahorro.total_ahorrado = int((ahorro.total_ahorrado or 0) + monto_abono_ahorro)
+        ahorro.ultima_actualizacion = datetime.now()
+
     db.commit()
 
     return {
